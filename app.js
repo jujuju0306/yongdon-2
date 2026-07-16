@@ -239,11 +239,11 @@ function renderDashboard() {
   const bar = document.getElementById('progressBar');
   bar.style.width = pct + '%';
   if (pct >= 100) {
-    bar.className = 'progress-fill h-full rounded-full bg-gradient-to-r from-red-400 to-red-600';
+    bar.style.background = 'var(--c-red)';
   } else if (pct >= 80) {
-    bar.className = 'progress-fill h-full rounded-full bg-gradient-to-r from-orange-400 to-red-400';
+    bar.style.background = 'var(--c-orange)';
   } else {
-    bar.className = 'progress-fill h-full rounded-full bg-gradient-to-r from-pink-400 to-purple-400';
+    bar.style.background = 'var(--c-blue)';
   }
 
   // Donut chart
@@ -279,8 +279,8 @@ function renderDonut(spent, budget) {
       datasets: [{
         data: budget > 0 ? [spent, remain] : [0, 1],
         backgroundColor: budget > 0
-          ? ['#f472b6', '#e9d5ff']
-          : ['#e9d5ff', '#f3e8ff'],
+          ? ['#007AFF', 'rgba(120,120,128,0.12)']
+          : ['rgba(120,120,128,0.12)', 'rgba(120,120,128,0.06)'],
         borderWidth: 0,
         hoverOffset: 4,
       }]
@@ -310,13 +310,13 @@ function renderCompare() {
   const diffEl = document.getElementById('diffAmount');
   if (diff > 0) {
     diffEl.textContent = '+' + fmtMoneyShort(diff);
-    diffEl.className   = 'text-base font-black text-red-400';
+    diffEl.style.color = 'var(--c-red)';
   } else if (diff < 0) {
     diffEl.textContent = '-' + fmtMoneyShort(Math.abs(diff));
-    diffEl.className   = 'text-base font-black text-green-500';
+    diffEl.style.color = 'var(--c-blue)';
   } else {
     diffEl.textContent = '같아요';
-    diffEl.className   = 'text-base font-black text-gray-500';
+    diffEl.style.color = 'var(--c-label3)';
   }
 
   // Bar chart
@@ -333,7 +333,7 @@ function renderCompare() {
       labels: [lastLabel, thisLabel],
       datasets: [{
         data: [lastTotal, thisTotal],
-        backgroundColor: ['rgba(167,139,250,0.7)', 'rgba(244,114,182,0.7)'],
+        backgroundColor: ['var(--c-fill)', 'var(--c-blue)'],
         borderRadius: 12,
         borderSkipped: false,
         barThickness: 48,
@@ -373,20 +373,20 @@ function renderRecentTx() {
     .slice(0, 4);
 
   if (!recent.length) {
-    el.innerHTML = '<p class="text-center text-gray-300 text-sm py-4">소비 내역이 없어요 🌸</p>';
+    el.innerHTML = '<p class="text-center py-6 text-[14px]" style="color:var(--c-label3)">소비 내역이 없어요</p>';
     return;
   }
 
   el.innerHTML = recent.map(t => {
     const cat = CATEGORIES[t.category] || CATEGORIES['기타'];
     return `
-    <div class="flex items-center gap-3 py-1.5">
-      <span class="text-xl w-8 text-center">${cat.emoji}</span>
+    <div class="ios-row gap-3 px-4">
+      <span class="text-2xl shrink-0" style="width:32px;text-align:center">${cat.emoji}</span>
       <div class="flex-1 min-w-0">
-        <p class="font-bold text-gray-700 text-sm truncate">${t.place || t.category}</p>
-        <p class="text-xs text-gray-400">${fmtDate(t.date)}</p>
+        <p class="font-semibold text-[15px] truncate" style="color:var(--c-label)">${t.place || t.category}</p>
+        <p class="text-[12px] mt-0.5" style="color:var(--c-label3)">${fmtDate(t.date)}</p>
       </div>
-      <span class="font-black text-gray-800 text-sm">-${fmtMoney(t.amount)}</span>
+      <span class="font-semibold text-[15px]" style="color:var(--c-label)">-${fmtMoney(t.amount)}</span>
     </div>`;
   }).join('');
 }
@@ -480,9 +480,8 @@ function renderTxLog() {
   if (!txs.length) {
     el.innerHTML = `
       <div class="text-center py-16">
-        <div class="text-6xl mb-3">📋</div>
-        <p class="text-gray-400 font-semibold">내역이 없어요!</p>
-        <p class="text-gray-300 text-sm mt-1">위 + 추가 버튼을 눌러<br>소비를 기록해봐요 🌸</p>
+        <p class="text-[17px] font-semibold" style="color:var(--c-label3)">기록이 없어요</p>
+        <p class="text-[14px] mt-1" style="color:var(--c-label3)">+ 추가를 눌러 소비를 기록해봐요</p>
       </div>`;
     return;
   }
@@ -502,28 +501,30 @@ function renderTxLog() {
     const items    = dayTxs.map(t => {
       const cat = CATEGORIES[t.category] || CATEGORIES['기타'];
       return `
-      <div class="tx-item flex items-center gap-3 py-3 border-b border-gray-50 last:border-0">
-        <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-lg shrink-0 ${cat.cls}" style="background:${cat.color}22">
+      <div class="ios-row px-0 gap-3">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0 ${cat.cls}">
           ${cat.emoji}
         </div>
         <div class="flex-1 min-w-0">
-          <p class="font-bold text-gray-800 text-sm truncate">${t.place || t.category}</p>
-          <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${cat.cls} mt-0.5">${t.category}</span>
+          <p class="font-semibold text-[16px] truncate" style="color:var(--c-label)">${t.place || t.category}</p>
+          <span class="inline-block text-[11px] font-bold px-2 py-0.5 rounded-md ${cat.cls} mt-1">${t.category}</span>
         </div>
         <div class="text-right shrink-0">
-          <p class="font-black text-gray-800">-${fmtMoney(t.amount)}</p>
-          <button onclick="confirmDeleteTx('${t.id}')" class="text-[10px] text-red-300 hover:text-red-500 font-semibold mt-0.5 transition-colors">삭제 🗑️</button>
+          <p class="font-semibold text-[16px]" style="color:var(--c-label)">-${fmtMoney(t.amount)}</p>
+          <button onclick="confirmDeleteTx('${t.id}')" class="text-[12px] font-semibold mt-1" style="color:var(--c-red)">삭제</button>
         </div>
       </div>`;
     }).join('');
 
     return `
-    <div class="glass-card rounded-2xl p-4 shadow-sm">
-      <div class="flex justify-between items-center mb-2">
-        <p class="text-xs font-bold text-gray-500">${fmtDate(date)}</p>
-        <p class="text-xs font-black text-pink-500">-${fmtMoney(dayTotal)}</p>
+    <div class="mb-5">
+      <div class="flex justify-between items-center mb-1.5 px-1">
+        <p class="ios-section-label mb-0 border-0" style="padding-bottom:0">${fmtDate(date)}</p>
+        <p class="text-[13px] font-semibold" style="color:var(--c-blue)">-${fmtMoney(dayTotal)}</p>
       </div>
-      ${items}
+      <div class="ios-card px-4 py-1">
+        ${items}
+      </div>
     </div>`;
   }).join('');
 }
@@ -566,13 +567,13 @@ function renderReward() {
   guideEl.innerHTML = LEVELS.map((lv, i) => {
     const active = pts >= lv.min;
     return `
-    <div class="flex items-center gap-3 py-2 ${active ? '' : 'opacity-40'}">
-      <span class="text-2xl">${lv.char}</span>
+    <div class="ios-row gap-3 ${active ? '' : 'opacity-40'} px-4">
+      <span class="text-3xl">${lv.char}</span>
       <div class="flex-1">
-        <p class="text-sm font-bold text-gray-700">Lv.${i+1} ${lv.label}</p>
-        <p class="text-xs text-gray-400">${lv.min.toLocaleString()}P 이상</p>
+        <p class="text-[15px] font-semibold" style="color:var(--c-label)">Lv.${i+1} ${lv.label}</p>
+        <p class="text-[12px] mt-0.5" style="color:var(--c-label3)">${lv.min.toLocaleString()}P 이상</p>
       </div>
-      ${active ? '<span class="text-green-500 font-black text-sm">✓</span>' : '<span class="text-gray-300 text-sm">🔒</span>'}
+      ${active ? '<span class="text-[15px] font-bold" style="color:var(--c-green)">✓</span>' : '<span class="text-[15px]" style="color:var(--c-label3)">🔒</span>'}
     </div>`;
   }).join('');
 
@@ -580,16 +581,16 @@ function renderReward() {
   const histEl = document.getElementById('mileageHistory');
   const hist   = [...(state.mileage.history || [])].reverse().slice(0, 10);
   if (!hist.length) {
-    histEl.innerHTML = '<p class="text-center text-gray-300 text-sm py-3">아직 적립 내역이 없어요 🌸</p>';
+    histEl.innerHTML = '<p class="text-center py-6 text-[14px]" style="color:var(--c-label3)">아직 적립 내역이 없어요</p>';
   } else {
     histEl.innerHTML = hist.map(h => `
-      <div class="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-        <span class="text-xl">${h.type === 'spend' ? '🎁' : '🐷'}</span>
+      <div class="ios-row gap-3 px-4">
+        <span class="text-2xl">${h.type === 'spend' ? '🎁' : '🐷'}</span>
         <div class="flex-1">
-          <p class="text-sm font-semibold text-gray-700">${h.msg}</p>
-          <p class="text-xs text-gray-400">${h.date}</p>
+          <p class="text-[15px] font-semibold" style="color:var(--c-label)">${h.msg}</p>
+          <p class="text-[12px] mt-0.5" style="color:var(--c-label3)">${h.date}</p>
         </div>
-        <span class="font-black ${h.type === 'spend' ? 'text-red-400' : 'text-purple-500'}">${h.type === 'spend' ? '-' : '+'}${h.points}P</span>
+        <span class="font-semibold text-[15px]" style="color:${h.type === 'spend' ? 'var(--c-red)' : 'var(--c-blue)'}">${h.type === 'spend' ? '-' : '+'}${h.points}P</span>
       </div>`).join('');
   }
 }
@@ -605,18 +606,17 @@ function renderGiftCardStore(pts) {
   el.innerHTML = GIFT_CARDS.map(gc => {
     const canBuy = pts >= gc.price;
     return `
-    <div class="flex items-center gap-3 p-3 rounded-2xl border-2 transition-all ${canBuy ? 'border-purple-200 bg-white' : 'border-gray-100 bg-gray-50 opacity-60'}">
-      <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0" style="background:${gc.bg}">${gc.emoji}</div>
+    <div class="ios-row gap-3 px-4 py-3">
+      <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0" style="background:${gc.bg}">${gc.emoji}</div>
       <div class="flex-1 min-w-0">
-        <p class="font-bold text-gray-800 text-sm">${gc.name}</p>
-        <p class="text-xs text-gray-400">${gc.brand} · ${gc.value}</p>
-        <p class="text-xs font-black mt-0.5" style="color:${gc.color}">${gc.price}P</p>
+        <p class="font-semibold text-[15px]" style="color:var(--c-label)">${gc.name}</p>
+        <p class="text-[12px] mt-0.5" style="color:var(--c-label3)">${gc.brand} · ${gc.value}</p>
+        <p class="text-[13px] font-bold mt-1" style="color:${gc.color}">${gc.price}P</p>
       </div>
       <button onclick="buyGiftCard('${gc.id}')"
-        class="shrink-0 text-xs font-black px-3 py-2 rounded-xl transition-all active:scale-95 ${canBuy
-          ? 'bg-gradient-to-r from-purple-400 to-pink-400 text-white shadow-sm'
-          : 'bg-gray-200 text-gray-400 cursor-not-allowed'}">
-        ${canBuy ? '교환 🎁' : `${gc.price - pts}P 부족`}
+        class="shrink-0 text-[13px] font-semibold px-3 py-1.5 rounded-full transition-opacity active:opacity-60"
+        style="${canBuy ? 'background:var(--c-blue);color:#fff' : 'background:var(--c-fill);color:var(--c-label3)'}">
+        ${canBuy ? '교환' : '부족'}
       </button>
     </div>`;
   }).join('');
@@ -629,7 +629,7 @@ function renderOwnedGiftCards() {
 
   const owned = (state.mileage.giftCards || []).slice().reverse();
   if (!owned.length) {
-    el.innerHTML = '<p class="text-center text-gray-300 text-sm py-3">교환한 기프티콘이 없어요 🎁</p>';
+    el.innerHTML = '<p class="text-center py-6 text-[14px]" style="color:var(--c-label3)">교환한 기프티콘이 없어요</p>';
     wrap.classList.remove('hidden');
     return;
   }
@@ -638,13 +638,13 @@ function renderOwnedGiftCards() {
   el.innerHTML = owned.map(item => {
     const gc = GIFT_CARDS.find(g => g.id === item.gcId) || {};
     return `
-    <div class="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-      <span class="text-2xl">${gc.emoji || '🎁'}</span>
+    <div class="ios-row gap-3 px-4">
+      <span class="text-3xl">${gc.emoji || '🎁'}</span>
       <div class="flex-1">
-        <p class="text-sm font-bold text-gray-700">${item.name}</p>
-        <p class="text-xs text-gray-400">${item.date}</p>
+        <p class="text-[15px] font-semibold" style="color:var(--c-label)">${item.name}</p>
+        <p class="text-[12px] mt-0.5" style="color:var(--c-label3)">${item.date}</p>
       </div>
-      <span class="text-xs bg-green-100 text-green-700 font-bold px-2 py-1 rounded-full">보유중 ✓</span>
+      <span class="text-[12px] font-bold px-2.5 py-1 rounded-full" style="background:rgba(52,199,89,0.15);color:var(--c-green)">보유중 ✓</span>
     </div>`;
   }).join('');
 }
@@ -692,9 +692,8 @@ function renderWishlist() {
   if (!state.wishlist.length) {
     el.innerHTML = `
       <div class="text-center py-16">
-        <div class="text-6xl mb-3">🛍️</div>
-        <p class="text-gray-400 font-semibold">위시리스트가 비어있어요!</p>
-        <p class="text-gray-300 text-sm mt-1">사고싶은 물건을 추가해봐요 ✨</p>
+        <p class="text-[17px] font-semibold" style="color:var(--c-label3)">위시리스트가 비어있어요</p>
+        <p class="text-[14px] mt-1" style="color:var(--c-label3)">+ 추가를 눌러 담아봐요 ✨</p>
       </div>`;
     return;
   }
@@ -719,48 +718,48 @@ function renderWishlist() {
     }
 
     let statusBadge = '';
-    if (w.status === 'bought')  statusBadge = '<span class="text-xs bg-green-100 text-green-600 font-bold px-2 py-0.5 rounded-full">✅ 구매 확정</span>';
-    if (w.status === 'skipped') statusBadge = '<span class="text-xs bg-gray-100 text-gray-500 font-bold px-2 py-0.5 rounded-full">🎉 참았다!</span>';
+    if (w.status === 'bought')  statusBadge = '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:rgba(52,199,89,0.15);color:var(--c-green)">✅ 구매 확정</span>';
+    if (w.status === 'skipped') statusBadge = '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:rgba(142,142,147,0.15);color:var(--c-label3)">🎉 참았다!</span>';
 
     let actions = '';
     if (!isDone) {
       if (isReady) {
         actions = `
-          <div class="flex gap-2 mt-3">
+          <div class="flex gap-2 mt-3 pt-3" style="border-top:0.5px solid var(--c-sep)">
             <button onclick="wishDecide('${w.id}', 'bought')"
-              class="flex-1 bg-green-100 text-green-700 font-black text-xs py-2.5 rounded-xl active:scale-95 transition-all border border-green-200">
-              ✅ 구매 확정 (소비 등록)
+              class="flex-1 text-[13px] font-semibold py-2 rounded-xl active:opacity-60" style="background:rgba(52,199,89,0.15);color:var(--c-green)">
+              ✅ 구매 확정
             </button>
             <button onclick="wishDecide('${w.id}', 'skipped')"
-              class="flex-1 bg-purple-100 text-purple-700 font-black text-xs py-2.5 rounded-xl active:scale-95 transition-all border border-purple-200">
-              🎉 참았다! (+마일리지)
+              class="flex-1 text-[13px] font-semibold py-2 rounded-xl active:opacity-60" style="background:var(--c-fill);color:var(--c-blue)">
+              🎉 참았다!
             </button>
           </div>`;
       } else {
         actions = `
-          <div class="mt-3">
-            <div class="w-full bg-purple-100 rounded-full h-2">
-              <div class="h-full rounded-full bg-gradient-to-r from-purple-400 to-pink-400 transition-all"
-                style="width:${Math.round((now - addedAt) / (readyAt - addedAt) * 100)}%"></div>
+          <div class="mt-3 pt-3" style="border-top:0.5px solid var(--c-sep)">
+            <div class="w-full rounded-full h-1.5" style="background:var(--c-fill)">
+              <div class="h-full rounded-full transition-all"
+                style="width:${Math.round((now - addedAt) / (readyAt - addedAt) * 100)}%;background:var(--c-blue)"></div>
             </div>
-            <p class="text-xs text-purple-500 font-semibold mt-1.5 text-center countdown-ring" data-id="${w.id}">${timerText}</p>
+            <p class="text-[12px] font-semibold mt-1.5 text-center countdown-ring" style="color:var(--c-blue)" data-id="${w.id}">${timerText}</p>
           </div>`;
       }
     }
 
     return `
-    <div class="glass-card rounded-2xl p-4 shadow-sm ${isDone ? 'wishlist-done' : ''}" id="wish-${w.id}">
+    <div class="ios-card p-4 mb-4 shadow-sm ${isDone ? 'wishlist-done' : ''}" id="wish-${w.id}">
       <div class="flex items-start gap-3">
-        <span class="text-3xl mt-0.5">🛍️</span>
+        <span class="text-3xl mt-0.5 shrink-0">🛍️</span>
         <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 flex-wrap">
-            <p class="font-black text-gray-800">${w.name}</p>
+          <div class="flex items-center gap-2 flex-wrap mb-1">
+            <p class="font-semibold text-[16px]" style="color:var(--c-label)">${w.name}</p>
             ${statusBadge}
           </div>
-          <p class="text-lg font-black text-purple-600 mt-0.5">${fmtMoney(w.price)}</p>
-          <p class="text-xs text-gray-400">등록: ${fmtDate(w.addedAt.split('T')[0])}</p>
+          <p class="text-[18px] font-bold" style="color:var(--c-label)">${fmtMoney(w.price)}</p>
+          <p class="text-[11px] mt-1" style="color:var(--c-label3)">등록: ${fmtDate(w.addedAt.split('T')[0])}</p>
         </div>
-        <button onclick="confirmDeleteWish('${w.id}')" class="text-gray-300 hover:text-red-400 transition-colors p-1">🗑️</button>
+        <button onclick="confirmDeleteWish('${w.id}')" class="text-[15px] p-1 active:opacity-60" style="color:var(--c-label3)">삭제</button>
       </div>
       ${actions}
     </div>`;

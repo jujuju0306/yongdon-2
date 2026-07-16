@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="description" content="고등학생을 위한 스마트 용돈 관리 앱 - 용동" />
-  <meta name="theme-color" content="#f472b6" />
+  <meta name="theme-color" content="#F2F2F7" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="용동" />
@@ -13,856 +13,714 @@
   <link rel="apple-touch-icon" href="icon-192.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { nunito: ['Nunito', 'sans-serif'] },
-          colors: {
-            pastel: {
-              pink:   '#fce7f3',
-              pinkhot:'#f472b6',
-              purple: '#ede9fe',
-              purplehot:'#a78bfa',
-              blue:   '#dbeafe',
-              bluehot:'#60a5fa',
-              orange: '#ffedd5',
-              orangehot:'#fb923c',
-              green:  '#d1fae5',
-              greenhot:'#34d399',
-              yellow: '#fef9c3',
-              yellowhot:'#fbbf24',
-            }
-          },
-          animation: {
-            'bounce-slow': 'bounce 2s infinite',
-            'pulse-fast': 'pulse 1s infinite',
-            'wiggle': 'wiggle 0.5s ease-in-out',
-            'slide-up': 'slideUp 0.3s ease-out',
-            'pop-in': 'popIn 0.25s cubic-bezier(.17,.67,.37,1.37)',
-          },
-          keyframes: {
-            wiggle: { '0%,100%': { transform: 'rotate(-5deg)' }, '50%': { transform: 'rotate(5deg)' } },
-            slideUp: { from: { transform: 'translateY(100%)', opacity: 0 }, to: { transform: 'translateY(0)', opacity: 1 } },
-            popIn:   { from: { transform: 'scale(0.8)', opacity: 0 }, to: { transform: 'scale(1)', opacity: 1 } },
-          }
-        }
-      }
-    }
-  </script>
   <style>
+    /* ── iOS Design Tokens ── */
+    :root {
+      --c-blue:    #007AFF;
+      --c-pink:    #FF2D55;
+      --c-purple:  #AF52DE;
+      --c-orange:  #FF9500;
+      --c-green:   #34C759;
+      --c-red:     #FF3B30;
+      --c-yellow:  #FFCC00;
+      --c-teal:    #5AC8FA;
+      --c-bg:      #F2F2F7;
+      --c-surface: #FFFFFF;
+      --c-label:   #000000;
+      --c-label2:  #3C3C43;
+      --c-label3:  #8E8E93;
+      --c-sep:     #C6C6C8;
+      --c-fill:    rgba(120,120,128,0.12);
+      --c-fill2:   rgba(120,120,128,0.06);
+    }
+
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { font-family: 'Nunito', sans-serif; background: #fdf2f8; overscroll-behavior: none; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      background: var(--c-bg);
+      overscroll-behavior: none;
+      color: var(--c-label);
+      -webkit-font-smoothing: antialiased;
+    }
+
     ::-webkit-scrollbar { display: none; }
-    .app-shell { max-width: 430px; margin: 0 auto; min-height: 100dvh; position: relative; }
+    .app-shell { max-width: 430px; margin: 0 auto; min-height: 100dvh; }
 
-    /* Donut Chart */
-    .donut-wrap { position: relative; width: 130px; height: 130px; }
-    .donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; }
-
-    /* Category tag colors */
-    .cat-food    { background: #ffedd5; color: #c2410c; }
-    .cat-play    { background: #ede9fe; color: #6d28d9; }
-    .cat-transit { background: #dbeafe; color: #1d4ed8; }
-    .cat-shop    { background: #fce7f3; color: #be185d; }
-    .cat-etc     { background: #d1fae5; color: #065f46; }
-
-    /* Character levels */
-    .char-egg   { font-size: 4rem; }
-    .char-baby  { font-size: 4rem; animation: bounce 2s infinite; }
-    .char-teen  { font-size: 4rem; filter: drop-shadow(0 0 8px #f472b680); animation: bounce 2s infinite; }
-    .char-master{ font-size: 4rem; filter: drop-shadow(0 0 16px #fbbf2480); animation: bounce 2s infinite; }
-
-    /* Glassmorphism card */
-    .glass-card {
-      background: rgba(255,255,255,0.72);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1.5px solid rgba(255,255,255,0.85);
+    /* ── Nav bar ── */
+    .ios-nav {
+      background: rgba(242,242,247,0.94);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 0.5px solid var(--c-sep);
+      position: sticky; top: 0; z-index: 40;
     }
 
-    /* Alert banner */
-    .alert-banner {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      animation: pulse 1.5s infinite;
+    /* ── Tab bar ── */
+    .ios-tab {
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-top: 0.5px solid var(--c-sep);
+      position: fixed; bottom: 0; left: 0; right: 0;
+      max-width: 430px; margin: 0 auto; z-index: 40;
     }
-    .warn-banner {
-      background: linear-gradient(135deg, #f97316, #ea580c);
+    .tab-btn { color: var(--c-label3); transition: color 0.12s; }
+    .tab-btn.active { color: var(--c-blue); }
+
+    /* ── Cards ── */
+    .ios-card { background: var(--c-surface); border-radius: 12px; }
+
+    /* ── Section label ── */
+    .ios-section-label {
+      font-size: 13px; font-weight: 600;
+      letter-spacing: 0.02em; color: var(--c-label3);
+      text-transform: uppercase; padding-bottom: 6px; display: block;
     }
 
-    /* Tab active indicator */
-    .tab-btn.active { color: #f472b6; }
-    .tab-btn.active .tab-icon { transform: scale(1.15); }
-    .tab-indicator { transition: left 0.3s cubic-bezier(.4,0,.2,1); }
+    /* ── List cells ── */
+    .ios-row { display: flex; align-items: center; min-height: 44px; padding: 10px 16px; }
+    .ios-row + .ios-row { border-top: 0.5px solid var(--c-sep); }
 
-    /* Modal overlay */
-    .modal-overlay { animation: fadeIn 0.2s ease; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    /* ── Inputs ── */
+    .ios-input {
+      background: var(--c-fill); border: none;
+      border-radius: 10px; padding: 11px 14px;
+      font-size: 17px; font-family: inherit;
+      width: 100%; color: #000; outline: none;
+    }
+    .ios-input:focus { box-shadow: 0 0 0 3px rgba(0,122,255,0.28); }
+    .ios-input::placeholder { color: var(--c-label3); }
 
-    /* Progress bar animation */
+    /* ── Buttons ── */
+    .ios-btn {
+      font-weight: 600; font-size: 17px; border-radius: 14px;
+      padding: 15px 16px; width: 100%; border: none;
+      cursor: pointer; transition: opacity 0.12s; text-align: center;
+    }
+    .ios-btn:active { opacity: 0.72; }
+    .ios-btn-primary { background: var(--c-blue); color: #fff; }
+    .ios-btn-gray    { background: var(--c-fill);  color: var(--c-blue); }
+
+    /* ── Progress bar ── */
     .progress-fill { transition: width 0.8s cubic-bezier(.4,0,.2,1); }
 
-    /* Wishlist card timer */
-    .countdown-ring { color: #a78bfa; font-variant-numeric: tabular-nums; }
-
-    /* Confetti particle */
-    .confetti { position: fixed; pointer-events: none; z-index: 9999; animation: fall 2s linear forwards; }
-    @keyframes fall {
-      from { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-      to   { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    /* ── Donut chart ── */
+    .donut-wrap { position: relative; width: 130px; height: 130px; }
+    .donut-center {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      text-align: center; pointer-events: none;
     }
 
-    /* Swipe delete hint */
-    .tx-item { position: relative; overflow: hidden; }
+    /* ── Category tags ── */
+    .cat-food    { background: #FFF3E0; color: #E65100; }
+    .cat-play    { background: #EDE7F6; color: #6A1B9A; }
+    .cat-transit { background: #E3F2FD; color: #1565C0; }
+    .cat-shop    { background: #FCE4EC; color: #880E4F; }
+    .cat-etc     { background: #E8F5E9; color: #1B5E20; }
 
-    /* Floating action button */
-    .fab { box-shadow: 0 8px 30px #f472b680; }
-    .fab:active { transform: scale(0.92); }
+    /* ── Character ── */
+    .char-egg    { font-size: 4rem; }
+    .char-baby   { font-size: 4rem; animation: bounce 2s infinite; }
+    .char-teen   { font-size: 4rem; filter: drop-shadow(0 0 8px rgba(175,82,222,0.5)); animation: bounce 2s infinite; }
+    .char-master { font-size: 4rem; filter: drop-shadow(0 0 16px rgba(255,204,0,0.6)); animation: bounce 2s infinite; }
 
-    /* Input focus ring */
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      ring: 2px solid #f472b6;
-      box-shadow: 0 0 0 3px rgba(244,114,182,0.3);
-    }
-
-    /* Mileage progress bar */
+    /* ── Shimmer ── */
     @keyframes shimmer {
       0%   { background-position: -200% 0; }
       100% { background-position: 200% 0; }
     }
     .shimmer-bar {
-      background: linear-gradient(90deg, #f472b6 0%, #c084fc 50%, #f472b6 100%);
+      background: linear-gradient(90deg, var(--c-blue) 0%, var(--c-purple) 50%, var(--c-blue) 100%);
       background-size: 200% 100%;
       animation: shimmer 2s linear infinite;
     }
 
-    /* Scroll container */
-    .scroll-content { overflow-y: auto; height: calc(100dvh - 136px); padding-bottom: 12px; }
+    /* ── Animations ── */
+    @keyframes fadeIn   { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp  { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    @keyframes popIn    { from { transform: scale(0.92); opacity:0; } to { transform: scale(1); opacity:1; } }
+    @keyframes wiggle   { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+    @keyframes fall     { from{transform:translateY(-20px) rotate(0deg);opacity:1;} to{transform:translateY(100vh) rotate(720deg);opacity:0;} }
 
-    /* Safe area padding */
-    .safe-top { padding-top: env(safe-area-inset-top, 0px); }
+    .modal-overlay  { animation: fadeIn  0.2s ease; }
+    .animate-slide-up { animation: slideUp 0.35s cubic-bezier(0.32,0.72,0,1); }
+    .animate-pop-in   { animation: popIn  0.22s cubic-bezier(.17,.67,.37,1.37); }
+    .animate-wiggle   { animation: wiggle 0.4s ease; }
+
+    /* ── Alert banners ── */
+    .alert-banner { background: var(--c-red);    animation: pulse 1.5s infinite; }
+    .warn-banner  { background: var(--c-orange); }
+
+    /* ── Sheet ── */
+    .sheet-handle { width: 36px; height: 5px; background: #D1D1D6; border-radius: 3px; margin: 8px auto 0; }
+
+    /* ── Misc ── */
+    .scroll-content { overflow-y: auto; height: calc(100dvh - 106px); padding-bottom: 28px; }
+    .safe-top    { padding-top: env(safe-area-inset-top, 0px); }
     .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
-
-    /* Wishlist done item */
-    .wishlist-done { opacity: 0.6; filter: grayscale(0.4); }
+    .wishlist-done   { opacity: 0.45; }
+    .countdown-ring  { color: var(--c-blue); font-variant-numeric: tabular-nums; }
+    .confetti { position: fixed; pointer-events: none; z-index: 9999; animation: fall 2s linear forwards; }
+    input[type="date"] { color-scheme: light; }
 
     /* =============================================
        PIG CHARACTER SYSTEM
        ============================================= */
-    .pig-wrap {
-      position: relative;
-      width: 78px;
-      height: 84px;
-      flex-shrink: 0;
-      cursor: default;
-      user-select: none;
-    }
-
-    /* Ears */
+    .pig-wrap { position:relative; width:78px; height:84px; flex-shrink:0; cursor:default; user-select:none; }
     .pig-ear {
-      position: absolute;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      top: 0px;
-      z-index: 1;
-      transition: background-color 0.6s ease;
+      position:absolute; width:28px; height:28px; border-radius:50%;
+      top:0; z-index:1; transition:background-color 0.6s ease;
     }
     .pig-ear::after {
-      content: '';
-      position: absolute;
-      width: 13px; height: 13px;
-      border-radius: 50%;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(255,255,255,0.35);
+      content:''; position:absolute; width:13px; height:13px;
+      border-radius:50%; top:50%; left:50%;
+      transform:translate(-50%,-50%); background:rgba(255,255,255,0.35);
     }
-    .pig-ear-l { left: 2px; }
-    .pig-ear-r { right: 2px; }
+    .pig-ear-l { left:2px; }
+    .pig-ear-r { right:2px; }
 
-    /* Body */
     .pig-body {
-      position: absolute;
-      width: 70px; height: 70px;
-      border-radius: 50%;
-      top: 12px; left: 4px;
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2px;
-      overflow: visible;
-      transition: background-color 0.6s ease, box-shadow 0.6s ease;
+      position:absolute; width:70px; height:70px; border-radius:50%;
+      top:12px; left:4px; z-index:2;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:2px; overflow:visible; transition:background-color 0.6s ease, box-shadow 0.6s ease;
     }
-
-    /* Cheek blushes */
     .pig-cheek {
-      position: absolute;
-      width: 18px; height: 11px;
-      border-radius: 50%;
-      background: rgba(220, 38, 38, 0.35);
-      opacity: 0;
-      transition: opacity 0.5s ease;
-      top: 52%;
+      position:absolute; width:18px; height:11px; border-radius:50%;
+      background:rgba(220,38,38,0.35); opacity:0; transition:opacity 0.5s ease; top:52%;
     }
-    .pig-cheek-l { left: 4px; }
-    .pig-cheek-r { right: 4px; }
-
-    /* Angry brows */
+    .pig-cheek-l { left:4px; } .pig-cheek-r { right:4px; }
     .pig-brows {
-      position: absolute;
-      top: 9px;
-      display: none;
-      gap: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 40px;
-      justify-content: space-between;
+      position:absolute; top:9px; display:none; gap:8px;
+      left:50%; transform:translateX(-50%); width:40px; justify-content:space-between;
     }
-    .pig-brow-l, .pig-brow-r {
-      width: 13px; height: 4px;
-      background: #7f1d1d;
-      border-radius: 2px;
-    }
-    .pig-brow-l { transform: rotate(28deg) translateY(2px); }
-    .pig-brow-r { transform: rotate(-28deg) translateY(2px); }
-
-    /* Eyes row */
-    .pig-eyes { display: flex; gap: 14px; position: relative; z-index: 3; }
-
+    .pig-brow-l,.pig-brow-r { width:13px; height:4px; background:#7f1d1d; border-radius:2px; }
+    .pig-brow-l { transform:rotate(28deg) translateY(2px); }
+    .pig-brow-r { transform:rotate(-28deg) translateY(2px); }
+    .pig-eyes { display:flex; gap:14px; position:relative; z-index:3; }
     .pig-eye {
-      width: 9px; height: 9px;
-      border-radius: 50%;
-      background: #1a1a1a;
-      position: relative;
-      transition: background-color 0.4s, transform 0.4s;
+      width:9px; height:9px; border-radius:50%; background:#1a1a1a;
+      position:relative; transition:background-color 0.4s, transform 0.4s;
     }
     .pig-eye::after {
-      content: '';
-      position: absolute;
-      width: 3px; height: 3px;
-      border-radius: 50%;
-      background: white;
-      top: 1px; right: 1px;
+      content:''; position:absolute; width:3px; height:3px; border-radius:50%;
+      background:white; top:1px; right:1px;
     }
-
-    /* Snout */
     .pig-snout {
-      width: 32px; height: 20px;
-      border-radius: 50%;
-      background: rgba(0,0,0,0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      position: relative; z-index: 3;
+      width:32px; height:20px; border-radius:50%; background:rgba(0,0,0,0.08);
+      display:flex; align-items:center; justify-content:center; gap:7px;
+      position:relative; z-index:3;
     }
-    .pig-nostril {
-      width: 7px; height: 6px;
-      border-radius: 50%;
-      background: rgba(0,0,0,0.18);
-    }
-
-    /* Mouth */
+    .pig-nostril { width:7px; height:6px; border-radius:50%; background:rgba(0,0,0,0.18); }
     .pig-mouth {
-      width: 18px; height: 9px;
-      border: 3px solid #1a1a1a;
-      border-top: none;
-      border-radius: 0 0 12px 12px;
-      position: relative; z-index: 3;
-      transition: all 0.4s ease;
+      width:18px; height:9px; border:3px solid #1a1a1a; border-top:none;
+      border-radius:0 0 12px 12px; position:relative; z-index:3; transition:all 0.4s ease;
     }
-
-    /* Sweat drop (top-right of body) */
     .pig-sweat {
-      position: absolute;
-      right: -2px; top: 10px;
-      font-size: 13px;
-      line-height: 1;
-      opacity: 0;          /* hidden by default — NO animation yet */
-      z-index: 10;
+      position:absolute; right:-2px; top:10px; font-size:13px;
+      line-height:1; opacity:0; z-index:10;
     }
-    .pig-sweat-2 {
-      right: -8px; top: 22px;
-    }
-    /* animation only runs when .visible is added */
-    .pig-sweat.visible {
-      animation: sweat-drip 1.8s ease-in-out infinite;
-    }
-    .pig-sweat-2.visible {
-      animation-delay: 0.6s;
-    }
+    .pig-sweat-2 { right:-8px; top:22px; }
+    .pig-sweat.visible { animation:sweat-drip 1.8s ease-in-out infinite; }
+    .pig-sweat-2.visible { animation-delay:0.6s; }
     @keyframes sweat-drip {
-      0%   { transform: translateY(0);    opacity: 0; }
-      20%  { opacity: 1; }
-      90%  { transform: translateY(14px); opacity: 0.4; }
-      100% { transform: translateY(16px); opacity: 0; }
+      0%{transform:translateY(0);opacity:0;} 20%{opacity:1;}
+      90%{transform:translateY(14px);opacity:0.4;} 100%{transform:translateY(16px);opacity:0;}
     }
-
-    /* Steam (for angry, above body) */
     .pig-steam {
-      position: absolute;
-      top: 2px; left: 50%;
-      transform: translateX(-50%);
-      font-size: 15px;
-      opacity: 0;          /* hidden by default — NO animation yet */
-      z-index: 10;
+      position:absolute; top:2px; left:50%; transform:translateX(-50%);
+      font-size:15px; opacity:0; z-index:10;
     }
-    /* animation only runs when .visible is added */
-    .pig-steam.visible {
-      animation: steam-up 1.2s ease-in-out infinite;
-    }
+    .pig-steam.visible { animation:steam-up 1.2s ease-in-out infinite; }
     @keyframes steam-up {
-      0%   { transform: translateX(-50%) translateY(0)    scale(0.8); opacity: 0; }
-      40%  { opacity: 1; }
-      100% { transform: translateX(-50%) translateY(-18px) scale(1.2); opacity: 0; }
+      0%{transform:translateX(-50%) translateY(0) scale(0.8);opacity:0;}
+      40%{opacity:1;} 100%{transform:translateX(-50%) translateY(-18px) scale(1.2);opacity:0;}
     }
-
-    /* Pig status label */
     .pig-label {
-      position: absolute;
-      bottom: -2px; left: 50%;
-      transform: translateX(-50%);
-      white-space: nowrap;
-      font-size: 9px;
-      font-weight: 800;
-      background: rgba(255,255,255,0.9);
-      border-radius: 20px;
-      padding: 1px 6px;
-      z-index: 10;
-      transition: color 0.5s;
+      position:absolute; bottom:-2px; left:50%; transform:translateX(-50%);
+      white-space:nowrap; font-size:9px; font-weight:700;
+      background:rgba(255,255,255,0.95); border-radius:20px;
+      padding:1px 6px; z-index:10; transition:color 0.5s;
     }
-
-    /* ── ANIMATIONS BY STATE ── */
-    @keyframes pig-bounce-k {
-      0%,100% { transform: translateY(0); }
-      50%      { transform: translateY(-5px); }
-    }
-    @keyframes pig-nervous-k {
-      0%,100% { transform: rotate(0deg); }
-      25%     { transform: rotate(-4deg); }
-      75%     { transform: rotate(4deg); }
-    }
-    @keyframes pig-shake-k {
-      0%,100% { transform: translateX(0); }
-      25%     { transform: translateX(-3px) rotate(-3deg); }
-      75%     { transform: translateX(3px)  rotate(3deg); }
-    }
-    @keyframes pig-hot-k {
-      0%,100% { transform: translateX(0) scale(1); }
-      20%     { transform: translateX(-4px) rotate(-5deg) scale(1.02); }
-      40%     { transform: translateX(4px)  rotate(5deg)  scale(1.02); }
-      60%     { transform: translateX(-4px) rotate(-5deg) scale(1.02); }
-      80%     { transform: translateX(4px)  rotate(5deg)  scale(1.02); }
-    }
-    @keyframes pig-angry-k {
-      0%,100% { transform: translateX(0) scale(1); }
-      15%     { transform: translateX(-5px) rotate(-6deg) scale(1.04); }
-      30%     { transform: translateX(5px)  rotate(6deg)  scale(1.04); }
-      45%     { transform: translateX(-5px) rotate(-6deg) scale(1.04); }
-      60%     { transform: translateX(5px)  rotate(6deg)  scale(1.04); }
-      75%     { transform: translateX(-5px) rotate(-6deg) scale(1.04); }
-      90%     { transform: translateX(5px)  rotate(6deg)  scale(1.04); }
-    }
-
-    .pig-anim-bounce  { animation: pig-bounce-k  2s   ease-in-out infinite; }
-    .pig-anim-nervous { animation: pig-nervous-k  1.4s ease-in-out infinite; }
-    .pig-anim-shake   { animation: pig-shake-k    0.7s ease-in-out infinite; }
-    .pig-anim-hot     { animation: pig-hot-k      0.45s ease-in-out infinite; }
-    .pig-anim-angry   { animation: pig-angry-k    0.35s ease-in-out infinite; }
+    @keyframes pig-bounce-k  { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
+    @keyframes pig-nervous-k { 0%,100%{transform:rotate(0deg);} 25%{transform:rotate(-4deg);} 75%{transform:rotate(4deg);} }
+    @keyframes pig-shake-k   { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-3px) rotate(-3deg);} 75%{transform:translateX(3px) rotate(3deg);} }
+    @keyframes pig-hot-k     { 0%,100%{transform:translateX(0) scale(1);} 20%{transform:translateX(-4px) rotate(-5deg) scale(1.02);} 40%{transform:translateX(4px) rotate(5deg) scale(1.02);} 60%{transform:translateX(-4px) rotate(-5deg) scale(1.02);} 80%{transform:translateX(4px) rotate(5deg) scale(1.02);} }
+    @keyframes pig-angry-k   { 0%,100%{transform:translateX(0) scale(1);} 15%{transform:translateX(-5px) rotate(-6deg) scale(1.04);} 30%{transform:translateX(5px) rotate(6deg) scale(1.04);} 45%{transform:translateX(-5px) rotate(-6deg) scale(1.04);} 60%{transform:translateX(5px) rotate(6deg) scale(1.04);} 75%{transform:translateX(-5px) rotate(-6deg) scale(1.04);} 90%{transform:translateX(5px) rotate(6deg) scale(1.04);} }
+    .pig-anim-bounce  { animation:pig-bounce-k  2s    ease-in-out infinite; }
+    .pig-anim-nervous { animation:pig-nervous-k  1.4s  ease-in-out infinite; }
+    .pig-anim-shake   { animation:pig-shake-k    0.7s  ease-in-out infinite; }
+    .pig-anim-hot     { animation:pig-hot-k      0.45s ease-in-out infinite; }
+    .pig-anim-angry   { animation:pig-angry-k    0.35s ease-in-out infinite; }
   </style>
 </head>
-<body class="bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
+<body>
 <div class="app-shell" id="app">
 
-  <!-- ===== ALERT BANNER ===== -->
+  <!-- ═══ ALERT BANNER ═══ -->
   <div id="alertBanner" class="hidden fixed top-0 left-0 right-0 z-50 max-w-[430px] mx-auto">
-    <div id="alertContent" class="alert-banner text-white text-center text-sm font-bold py-3 px-4 cursor-pointer" onclick="dismissAlert()">
-      🚨 비상 상황! 이달 예산을 돌파했습니다! 지갑을 닫으세요!
+    <div id="alertContent" class="alert-banner text-white text-center text-sm font-semibold py-3 px-4 cursor-pointer" onclick="dismissAlert()">
+      🚨 이달 예산을 초과했습니다! 지갑을 닫으세요!
     </div>
   </div>
 
-  <!-- ===== HEADER ===== -->
-  <header class="safe-top glass-card sticky top-0 z-40 px-5 pt-4 pb-3 shadow-sm">
+  <!-- ═══ NAVIGATION BAR ═══ -->
+  <header class="ios-nav safe-top px-4 pt-3 pb-3">
     <div class="flex items-center justify-between">
       <div>
-        <p class="text-xs text-pink-400 font-bold tracking-widest uppercase">용동 🐷</p>
-        <h1 class="text-xl font-black text-gray-800 leading-tight">용돈 관리 앱</h1>
+        <p class="text-[11px] font-semibold tracking-widest uppercase" style="color:var(--c-label3)">용동 🐷</p>
+        <h1 class="text-[22px] font-bold tracking-tight leading-tight" style="color:var(--c-label)">용돈 관리</h1>
       </div>
-    <div class="text-right">
-        <p class="text-xs text-gray-400" id="headerDate"></p>
-        <div class="flex items-center gap-2 justify-end mt-1">
-          <span id="demoBadge" class="hidden bg-purple-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse"></span>
-          <button onclick="openTimePanel()" class="bg-purple-100 text-purple-600 text-xs font-bold px-2.5 py-1.5 rounded-full hover:bg-purple-200 transition-all active:scale-95" title="시연 모드">
-            ⏰ 시연
-          </button>
-          <button onclick="openBudgetModal()" class="bg-pink-100 text-pink-600 text-xs font-bold px-3 py-1.5 rounded-full hover:bg-pink-200 transition-all active:scale-95" id="budgetBtn">
-            예산 설정 ✏️
-          </button>
+      <div class="flex items-center gap-2">
+        <span id="demoBadge" class="hidden text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style="background:var(--c-purple)"></span>
+        <button onclick="openTimePanel()" class="text-[13px] font-semibold px-3 py-1.5 rounded-full transition-opacity active:opacity-60" style="background:var(--c-fill);color:var(--c-blue)">
+          ⏰ 시연
+        </button>
+        <div class="text-right">
+          <p class="text-[11px]" style="color:var(--c-label3)" id="headerDate"></p>
+          <button onclick="openBudgetModal()" class="text-[13px] font-semibold" style="color:var(--c-blue)" id="budgetBtn">예산 설정</button>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- ===== TAB NAVIGATION ===== -->
-  <nav class="safe-bottom glass-card fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto z-40 px-2 py-2 shadow-lg border-t border-pink-100">
+  <!-- ═══ TAB BAR ═══ -->
+  <nav class="ios-tab safe-bottom px-2 pt-2 pb-1">
     <div class="flex justify-around items-center">
-      <button class="tab-btn active flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-2xl transition-all" onclick="switchTab('home')" id="tab-home">
-        <span class="tab-icon text-2xl transition-transform">🏠</span>
-        <span class="text-[10px] font-bold">홈</span>
+      <button class="tab-btn active flex flex-col items-center gap-0.5 px-5 py-1.5 rounded-xl" onclick="switchTab('home')" id="tab-home">
+        <span class="tab-icon text-2xl">🏠</span>
+        <span class="text-[10px] font-semibold">홈</span>
       </button>
-      <button class="tab-btn flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-2xl transition-all" onclick="switchTab('log')" id="tab-log">
-        <span class="tab-icon text-2xl transition-transform">📝</span>
-        <span class="text-[10px] font-bold">기입장</span>
+      <button class="tab-btn flex flex-col items-center gap-0.5 px-5 py-1.5 rounded-xl" onclick="switchTab('log')" id="tab-log">
+        <span class="tab-icon text-2xl">📝</span>
+        <span class="text-[10px] font-semibold">기입장</span>
       </button>
-      <button class="tab-btn flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-2xl transition-all" onclick="switchTab('reward')" id="tab-reward">
-        <span class="tab-icon text-2xl transition-transform">⭐</span>
-        <span class="text-[10px] font-bold">마일리지</span>
+      <button class="tab-btn flex flex-col items-center gap-0.5 px-5 py-1.5 rounded-xl" onclick="switchTab('reward')" id="tab-reward">
+        <span class="tab-icon text-2xl">⭐</span>
+        <span class="text-[10px] font-semibold">마일리지</span>
       </button>
-      <button class="tab-btn flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-2xl transition-all" onclick="switchTab('wish')" id="tab-wish">
-        <span class="tab-icon text-2xl transition-transform">🛒</span>
-        <span class="text-[10px] font-bold">위시리스트</span>
+      <button class="tab-btn flex flex-col items-center gap-0.5 px-5 py-1.5 rounded-xl" onclick="switchTab('wish')" id="tab-wish">
+        <span class="tab-icon text-2xl">🛒</span>
+        <span class="text-[10px] font-semibold">위시리스트</span>
       </button>
     </div>
   </nav>
 
-  <!-- ===== MAIN CONTENT ===== -->
-  <main class="pt-1 pb-20">
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <main>
 
     <!-- ★ HOME TAB ★ -->
-    <section id="page-home" class="scroll-content px-4 pt-3 space-y-4">
+    <section id="page-home" class="scroll-content px-4 pt-4 space-y-6">
 
       <!-- Budget Overview Card -->
-      <div class="glass-card rounded-3xl p-5 shadow-md">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <p class="text-xs text-gray-400 font-semibold">이번 달 남은 용돈</p>
-            <p class="text-2xl font-black text-gray-800 mt-0.5" id="remainAmount">0원</p>
-            <p class="text-xs text-gray-400 mt-1">예산: <span class="text-pink-500 font-bold" id="budgetDisplay">미설정</span></p>
+      <div class="ios-card px-4 pt-4 pb-4">
+        <div class="flex items-start justify-between">
+          <div class="flex-1 min-w-0 pr-2">
+            <p class="text-[13px] font-medium" style="color:var(--c-label3)">이번 달 남은 용돈</p>
+            <p class="text-[28px] font-bold tracking-tight mt-0.5 leading-tight" style="color:var(--c-label)" id="remainAmount">0원</p>
+            <p class="text-[13px] mt-1" style="color:var(--c-label3)">
+              예산 <span class="font-semibold" style="color:var(--c-blue)" id="budgetDisplay">미설정</span>
+            </p>
           </div>
-          <!-- Pig + Donut right side -->
-          <div class="flex items-end gap-2">
-            <!-- 🐷 Pig Character -->
+          <!-- Pig + Donut -->
+          <div class="flex items-end gap-3 shrink-0">
             <div id="pigChar" class="pig-wrap pig-anim-bounce">
               <div class="pig-ear pig-ear-l" id="pigEarL" style="background:#f9a8d4"></div>
               <div class="pig-ear pig-ear-r" id="pigEarR" style="background:#f9a8d4"></div>
-              <div class="pig-body" id="pigBody" style="background:#fce7f3; box-shadow:0 6px 20px rgba(244,114,182,0.3)">
-                <!-- Cheeks -->
+              <div class="pig-body" id="pigBody" style="background:#fce7f3;box-shadow:0 6px 20px rgba(244,114,182,0.3)">
                 <div class="pig-cheek pig-cheek-l" id="pigCheekL"></div>
                 <div class="pig-cheek pig-cheek-r" id="pigCheekR"></div>
-                <!-- Angry brows -->
                 <div class="pig-brows" id="pigBrows">
                   <div class="pig-brow-l"></div>
                   <div class="pig-brow-r"></div>
                 </div>
-                <!-- Eyes -->
                 <div class="pig-eyes">
                   <div class="pig-eye" id="pigEyeL"></div>
                   <div class="pig-eye" id="pigEyeR"></div>
                 </div>
-                <!-- Snout -->
                 <div class="pig-snout">
                   <div class="pig-nostril"></div>
                   <div class="pig-nostril"></div>
                 </div>
-                <!-- Mouth -->
                 <div class="pig-mouth" id="pigMouth"></div>
               </div>
-              <!-- Sweat drops -->
               <div class="pig-sweat" id="pigSweat1">💧</div>
               <div class="pig-sweat pig-sweat-2" id="pigSweat2">💧</div>
-              <!-- Steam -->
               <div class="pig-steam" id="pigSteam">💢</div>
-              <!-- Label -->
               <div class="pig-label" id="pigLabel" style="color:#be185d">행복해요 😊</div>
             </div>
-            <!-- Donut Chart -->
             <div class="donut-wrap">
               <canvas id="donutChart" width="130" height="130"></canvas>
               <div class="donut-center">
-                <p class="text-[10px] text-gray-400 font-semibold">사용률</p>
-                <p class="text-base font-black text-pink-500" id="usagePercent">0%</p>
+                <p class="text-[10px] font-medium" style="color:var(--c-label3)">사용률</p>
+                <p class="text-[16px] font-bold" style="color:var(--c-blue)" id="usagePercent">0%</p>
               </div>
             </div>
           </div>
         </div>
-        <!-- Progress Bar -->
-        <div class="w-full bg-pink-100 rounded-full h-3 overflow-hidden">
-          <div id="progressBar" class="progress-fill h-full rounded-full bg-gradient-to-r from-pink-400 to-purple-400" style="width:0%"></div>
+
+        <!-- Divider -->
+        <div class="my-3" style="height:0.5px;background:var(--c-sep)"></div>
+
+        <!-- Progress -->
+        <div class="rounded-full overflow-hidden" style="height:5px;background:var(--c-fill)">
+          <div id="progressBar" class="progress-fill h-full rounded-full" style="width:0%;background:var(--c-blue)"></div>
         </div>
-        <div class="flex justify-between text-xs text-gray-400 mt-1.5">
-          <span>사용: <strong class="text-gray-600" id="usedAmountSmall">0원</strong></span>
-          <span>예산: <strong class="text-gray-600" id="budgetSmall">0원</strong></span>
+        <div class="flex justify-between mt-1.5">
+          <span class="text-[12px]" style="color:var(--c-label3)">사용 <strong class="font-semibold" style="color:var(--c-label)" id="usedAmountSmall">0원</strong></span>
+          <span class="text-[12px]" style="color:var(--c-label3)">예산 <strong class="font-semibold" style="color:var(--c-label)" id="budgetSmall">0원</strong></span>
         </div>
       </div>
 
-      <!-- Month Comparison Card -->
-      <div class="glass-card rounded-3xl p-5 shadow-md">
-        <p class="text-sm font-bold text-gray-700 mb-3">📊 지난달 vs 이번달 비교</p>
-        <canvas id="compareChart" height="130"></canvas>
-        <div class="flex justify-around mt-3 text-center">
-          <div>
-            <p class="text-xs text-gray-400">지난달</p>
-            <p class="text-base font-black text-purple-500" id="lastMonthTotal">0원</p>
-          </div>
-          <div class="w-px bg-gray-200"></div>
-          <div>
-            <p class="text-xs text-gray-400">이번달</p>
-            <p class="text-base font-black text-pink-500" id="thisMonthTotal">0원</p>
-          </div>
-          <div class="w-px bg-gray-200"></div>
-          <div>
-            <p class="text-xs text-gray-400">차이</p>
-            <p class="text-base font-black" id="diffAmount">-</p>
+      <!-- Monthly Comparison -->
+      <div>
+        <span class="ios-section-label">지난달 vs 이번달</span>
+        <div class="ios-card px-4 pt-4 pb-3">
+          <canvas id="compareChart" height="110"></canvas>
+          <div class="my-3" style="height:0.5px;background:var(--c-sep)"></div>
+          <div class="flex justify-around text-center">
+            <div>
+              <p class="text-[11px] font-medium" style="color:var(--c-label3)">지난달</p>
+              <p class="text-[15px] font-bold mt-0.5" style="color:var(--c-purple)" id="lastMonthTotal">0원</p>
+            </div>
+            <div style="width:0.5px;background:var(--c-sep)"></div>
+            <div>
+              <p class="text-[11px] font-medium" style="color:var(--c-label3)">이번달</p>
+              <p class="text-[15px] font-bold mt-0.5" style="color:var(--c-blue)" id="thisMonthTotal">0원</p>
+            </div>
+            <div style="width:0.5px;background:var(--c-sep)"></div>
+            <div>
+              <p class="text-[11px] font-medium" style="color:var(--c-label3)">차이</p>
+              <p class="text-[15px] font-bold mt-0.5" id="diffAmount">-</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Recent Transactions Preview -->
-      <div class="glass-card rounded-3xl p-5 shadow-md">
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-sm font-bold text-gray-700">🕐 최근 소비</p>
-          <button onclick="switchTab('log')" class="text-xs text-pink-500 font-bold">전체 보기 →</button>
+      <!-- Recent Transactions -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="ios-section-label mb-0">최근 소비</span>
+          <button onclick="switchTab('log')" class="text-[13px] font-semibold" style="color:var(--c-blue)">전체 보기 ›</button>
         </div>
-        <div id="recentTxList" class="space-y-2">
-          <p class="text-center text-gray-300 text-sm py-4">소비 내역이 없어요 🌸</p>
+        <div class="ios-card overflow-hidden" id="recentTxList">
+          <p class="text-center py-8 text-[14px]" style="color:var(--c-label3)">소비 내역이 없어요</p>
         </div>
       </div>
 
-      <!-- Mileage Preview -->
-      <div class="glass-card rounded-3xl p-5 shadow-md bg-gradient-to-br from-purple-50 to-pink-50">
-        <div class="flex items-center gap-4">
-          <div id="charPreview" class="char-egg text-5xl select-none">🥚</div>
-          <div class="flex-1">
-            <p class="text-xs text-gray-400 font-semibold">착한 소비 마일리지</p>
-            <p class="text-2xl font-black text-purple-600" id="mileagePreview">0 P</p>
-            <p class="text-xs text-purple-400 font-bold" id="charLevel">Lv.1 절약 새싹</p>
+      <!-- Mileage Quick View -->
+      <div>
+        <span class="ios-section-label">마일리지</span>
+        <div class="ios-card overflow-hidden">
+          <div class="ios-row gap-3">
+            <span class="text-4xl" id="charPreview">🥚</span>
+            <div class="flex-1">
+              <p class="text-[16px] font-bold" style="color:var(--c-label)" id="mileagePreview">0 P</p>
+              <p class="text-[12px] mt-0.5 font-medium" style="color:var(--c-label3)" id="charLevel">Lv.1 절약 새싹</p>
+            </div>
+            <button onclick="switchTab('reward')" class="text-[18px] font-medium" style="color:var(--c-label3)">›</button>
           </div>
-          <button onclick="switchTab('reward')" class="text-xs text-purple-500 font-bold bg-purple-100 px-3 py-1.5 rounded-full">자세히 →</button>
         </div>
       </div>
-
     </section>
 
     <!-- ★ LOG TAB ★ -->
-    <section id="page-log" class="scroll-content px-4 pt-3 hidden">
+    <section id="page-log" class="scroll-content px-4 pt-4 hidden">
       <div class="flex items-center justify-between mb-4">
-        <div>
-          <h2 class="text-lg font-black text-gray-800">용돈 기입장 📝</h2>
-          <p class="text-xs text-gray-400">이번 달 소비를 기록해요</p>
-        </div>
-        <button onclick="openTxModal()" id="addTxBtn" class="fab bg-gradient-to-r from-pink-400 to-purple-400 text-white font-black text-sm px-4 py-2.5 rounded-2xl flex items-center gap-1.5 active:scale-95 transition-all">
-          <span class="text-lg">+</span> 추가
+        <h2 class="text-[22px] font-bold tracking-tight" style="color:var(--c-label)">기입장</h2>
+        <button onclick="openTxModal()" id="addTxBtn"
+          class="flex items-center gap-1 text-[14px] font-semibold px-4 py-2 rounded-full active:opacity-70"
+          style="background:var(--c-blue);color:#fff">
+          + 추가
         </button>
       </div>
 
       <!-- Category Filter -->
-      <div class="flex gap-2 overflow-x-auto pb-2 mb-4 no-scrollbar">
-        <button class="cat-filter-btn active shrink-0 bg-pink-400 text-white text-xs font-bold px-3 py-1.5 rounded-full transition-all" data-cat="all" onclick="filterCat('all')">전체</button>
-        <button class="cat-filter-btn shrink-0 bg-orange-100 text-orange-600 text-xs font-bold px-3 py-1.5 rounded-full transition-all" data-cat="매점/식비" onclick="filterCat('매점/식비')">🍔 매점/식비</button>
-        <button class="cat-filter-btn shrink-0 bg-purple-100 text-purple-600 text-xs font-bold px-3 py-1.5 rounded-full transition-all" data-cat="코노/PC방" onclick="filterCat('코노/PC방')">🎮 코노/PC방</button>
-        <button class="cat-filter-btn shrink-0 bg-blue-100 text-blue-600 text-xs font-bold px-3 py-1.5 rounded-full transition-all" data-cat="교통비" onclick="filterCat('교통비')">🚌 교통비</button>
-        <button class="cat-filter-btn shrink-0 bg-pink-100 text-pink-600 text-xs font-bold px-3 py-1.5 rounded-full transition-all" data-cat="쇼핑/뷰티" onclick="filterCat('쇼핑/뷰티')">💄 쇼핑/뷰티</button>
-        <button class="cat-filter-btn shrink-0 bg-green-100 text-green-600 text-xs font-bold px-3 py-1.5 rounded-full transition-all" data-cat="기타" onclick="filterCat('기타')">💫 기타</button>
+      <div class="flex gap-2 overflow-x-auto pb-3" style="-ms-overflow-style:none;scrollbar-width:none">
+        <button class="cat-filter-btn shrink-0 text-[13px] font-semibold px-3 py-1.5 rounded-full" data-cat="all" onclick="filterCat('all')" style="background:var(--c-blue);color:#fff">전체</button>
+        <button class="cat-filter-btn shrink-0 text-[13px] font-semibold px-3 py-1.5 rounded-full" data-cat="매점/식비" onclick="filterCat('매점/식비')" style="background:var(--c-fill);color:var(--c-label)">🍔 매점/식비</button>
+        <button class="cat-filter-btn shrink-0 text-[13px] font-semibold px-3 py-1.5 rounded-full" data-cat="코노/PC방" onclick="filterCat('코노/PC방')" style="background:var(--c-fill);color:var(--c-label)">🎮 코노/PC방</button>
+        <button class="cat-filter-btn shrink-0 text-[13px] font-semibold px-3 py-1.5 rounded-full" data-cat="교통비" onclick="filterCat('교통비')" style="background:var(--c-fill);color:var(--c-label)">🚌 교통비</button>
+        <button class="cat-filter-btn shrink-0 text-[13px] font-semibold px-3 py-1.5 rounded-full" data-cat="쇼핑/뷰티" onclick="filterCat('쇼핑/뷰티')" style="background:var(--c-fill);color:var(--c-label)">💄 쇼핑/뷰티</button>
+        <button class="cat-filter-btn shrink-0 text-[13px] font-semibold px-3 py-1.5 rounded-full" data-cat="기타" onclick="filterCat('기타')" style="background:var(--c-fill);color:var(--c-label)">💫 기타</button>
       </div>
 
-      <!-- Transaction List -->
-      <div id="txList" class="space-y-3">
+      <div id="txList">
         <div class="text-center py-16">
-          <div class="text-6xl mb-3">📋</div>
-          <p class="text-gray-400 font-semibold">아직 기록이 없어요!</p>
-          <p class="text-gray-300 text-sm mt-1">위 + 추가 버튼을 눌러<br>첫 소비를 기록해봐요 🌸</p>
+          <p class="text-[17px] font-semibold" style="color:var(--c-label3)">기록이 없어요</p>
+          <p class="text-[14px] mt-1" style="color:var(--c-label3)">+ 추가를 눌러 소비를 기록해봐요</p>
         </div>
       </div>
     </section>
 
     <!-- ★ REWARD TAB ★ -->
-    <section id="page-reward" class="scroll-content px-4 pt-3 hidden space-y-4">
-      <div>
-        <h2 class="text-lg font-black text-gray-800">마일리지 리워드 ⭐</h2>
-        <p class="text-xs text-gray-400">절약할수록 캐릭터가 성장해요!</p>
-      </div>
+    <section id="page-reward" class="scroll-content px-4 pt-4 hidden space-y-6">
+      <h2 class="text-[22px] font-bold tracking-tight" style="color:var(--c-label)">마일리지 리워드</h2>
 
-      <!-- Character Card -->
-      <div class="glass-card rounded-3xl p-6 shadow-md bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50 text-center">
-        <div id="mainChar" class="text-8xl mb-3 inline-block select-none" style="filter:drop-shadow(0 4px 12px rgba(168,139,250,0.4))">🥚</div>
-        <div id="levelBadge" class="inline-block bg-purple-100 text-purple-700 text-xs font-black px-4 py-1.5 rounded-full mb-2">Lv.1 절약 새싹</div>
-        <div class="text-4xl font-black text-purple-600 mb-1" id="mileagePoints">0</div>
-        <div class="text-sm text-gray-400 font-semibold">마일리지 포인트</div>
-        <!-- Level progress -->
-        <div class="mt-4 w-full bg-purple-100 rounded-full h-4 overflow-hidden">
+      <!-- Character Hero -->
+      <div class="ios-card px-4 py-5 text-center">
+        <div id="mainChar" class="text-7xl mb-2 inline-block" style="filter:drop-shadow(0 4px 12px rgba(0,0,0,0.12))">🥚</div>
+        <div class="mb-2">
+          <span id="levelBadge" class="inline-block text-[12px] font-bold px-3 py-1 rounded-full"
+            style="background:rgba(175,82,222,0.1);color:var(--c-purple)">Lv.1 절약 새싹</span>
+        </div>
+        <p class="text-[36px] font-bold tracking-tight leading-none" style="color:var(--c-label)" id="mileagePoints">0</p>
+        <p class="text-[13px] font-medium mt-0.5" style="color:var(--c-label3)">마일리지 포인트</p>
+        <div class="mt-4 rounded-full overflow-hidden" style="height:5px;background:var(--c-fill)">
           <div id="levelBar" class="shimmer-bar h-full rounded-full" style="width:0%"></div>
         </div>
-        <div class="flex justify-between text-xs text-purple-400 mt-1 font-semibold">
-          <span id="levelFrom">Lv.1</span>
-          <span id="nextLevelHint">다음 레벨까지 100P</span>
-          <span id="levelTo">Lv.2</span>
+        <div class="flex justify-between mt-1.5 text-[11px]">
+          <span style="color:var(--c-label3)" id="levelFrom">Lv.1</span>
+          <span class="font-semibold" style="color:var(--c-purple)" id="nextLevelHint">다음 레벨까지 100P</span>
+          <span style="color:var(--c-label3)" id="levelTo">Lv.2</span>
         </div>
       </div>
 
-      <!-- 🎁 Gift Card Store -->
-      <div class="glass-card rounded-3xl p-5 shadow-md">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <p class="text-sm font-bold text-gray-700">🎁 기프티콘 스토어</p>
-            <p class="text-xs text-gray-400">열심히 모은 포인트로 교환하세요!</p>
-          </div>
-          <div class="bg-gradient-to-r from-purple-400 to-pink-400 text-white text-xs font-black px-3 py-1.5 rounded-full">
-            포인트: <span id="storePointsBadge">0</span>P
-          </div>
+      <!-- Gift Card Store -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="ios-section-label mb-0">기프티콘 스토어 🎁</span>
+          <span class="text-[12px] font-semibold px-2.5 py-0.5 rounded-full" style="background:rgba(0,122,255,0.1);color:var(--c-blue)">
+            <span id="storePointsBadge">0</span>P 보유
+          </span>
         </div>
-        <div id="giftCardStore" class="space-y-2"></div>
+        <div class="ios-card overflow-hidden" id="giftCardStore"></div>
       </div>
 
-      <!-- 🎀 Owned Gift Cards -->
-      <div id="ownedGiftCardsWrap" class="glass-card rounded-3xl p-5 shadow-md hidden">
-        <p class="text-sm font-bold text-gray-700 mb-3">💼 보유 기프티콘</p>
-        <div id="ownedGiftCards"></div>
+      <!-- Owned Gift Cards -->
+      <div id="ownedGiftCardsWrap" class="hidden">
+        <span class="ios-section-label">보유 기프티콘 💼</span>
+        <div class="ios-card overflow-hidden" id="ownedGiftCards"></div>
       </div>
 
       <!-- Level Guide -->
-      <div class="glass-card rounded-3xl p-5 shadow-md">
-        <p class="text-sm font-bold text-gray-700 mb-3">🏆 레벨 가이드</p>
-        <div class="space-y-2" id="levelGuide">
-          <!-- Filled by JS -->
-        </div>
+      <div>
+        <span class="ios-section-label">레벨 가이드 🏆</span>
+        <div class="ios-card overflow-hidden" id="levelGuide"></div>
       </div>
 
       <!-- Mileage History -->
-      <div class="glass-card rounded-3xl p-5 shadow-md">
-        <p class="text-sm font-bold text-gray-700 mb-3">📜 적립/사용 내역</p>
-        <div id="mileageHistory" class="space-y-2">
-          <p class="text-center text-gray-300 text-sm py-3">아직 내역이 없어요 🌸</p>
+      <div>
+        <span class="ios-section-label">적립 · 사용 내역 📜</span>
+        <div class="ios-card overflow-hidden" id="mileageHistory">
+          <p class="text-center py-6 text-[13px]" style="color:var(--c-label3)">내역이 없어요</p>
         </div>
       </div>
     </section>
 
     <!-- ★ WISHLIST TAB ★ -->
-    <section id="page-wish" class="scroll-content px-4 pt-3 hidden space-y-4">
+    <section id="page-wish" class="scroll-content px-4 pt-4 hidden space-y-4">
       <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-lg font-black text-gray-800">살까 말까? 🛒</h2>
-          <p class="text-xs text-gray-400">3일 후에 결정해요 (충동구매 방지!)</p>
-        </div>
-        <button onclick="openWishModal()" class="fab bg-gradient-to-r from-purple-400 to-pink-400 text-white font-black text-sm px-4 py-2.5 rounded-2xl flex items-center gap-1.5 active:scale-95 transition-all">
-          <span class="text-lg">+</span> 추가
+        <h2 class="text-[22px] font-bold tracking-tight" style="color:var(--c-label)">살까 말까?</h2>
+        <button onclick="openWishModal()"
+          class="flex items-center gap-1 text-[14px] font-semibold px-4 py-2 rounded-full active:opacity-70"
+          style="background:var(--c-blue);color:#fff">
+          + 추가
         </button>
       </div>
 
-      <!-- Tip Card -->
-      <div class="bg-purple-50 border border-purple-200 rounded-2xl p-4 flex gap-3">
-        <span class="text-2xl">💡</span>
+      <!-- Tip -->
+      <div class="ios-card px-4 py-3 flex gap-3 items-start">
+        <span class="text-xl mt-0.5">💡</span>
         <div>
-          <p class="text-xs font-bold text-purple-700">충동구매 방지 팁!</p>
-          <p class="text-xs text-purple-500 mt-0.5">사고싶은 물건을 등록하고 3일 동안 기다려보세요.<br>3일 후에도 사고 싶으면 진짜 필요한 거예요!</p>
+          <p class="text-[14px] font-semibold" style="color:var(--c-label)">충동구매 방지 팁</p>
+          <p class="text-[12px] mt-0.5" style="color:var(--c-label3)">3일 후에도 사고 싶으면 진짜 필요한 거예요!</p>
         </div>
       </div>
 
-      <!-- Wishlist Items -->
-      <div id="wishList" class="space-y-3">
+      <div id="wishList">
         <div class="text-center py-16">
-          <div class="text-6xl mb-3">🛍️</div>
-          <p class="text-gray-400 font-semibold">위시리스트가 비어있어요!</p>
-          <p class="text-gray-300 text-sm mt-1">사고싶은 물건을 추가해봐요 ✨</p>
+          <p class="text-[17px] font-semibold" style="color:var(--c-label3)">위시리스트가 비어있어요</p>
+          <p class="text-[14px] mt-1" style="color:var(--c-label3)">+ 추가를 눌러 담아봐요 ✨</p>
         </div>
       </div>
     </section>
-
   </main>
 
-  <!-- ===== MODALS ===== -->
+  <!-- ═══ MODALS ═══ -->
 
   <!-- Time Control Panel -->
   <div id="timePanel" class="hidden fixed inset-0 z-50 flex items-end justify-center max-w-[430px] mx-auto">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeTimePanel()"></div>
-    <div class="relative w-full bg-white rounded-t-3xl p-6 shadow-2xl animate-slide-up">
-      <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5"></div>
-
-      <!-- Header -->
-      <div class="flex items-center gap-2 mb-1">
-        <span class="text-xl">⏰</span>
-        <h3 class="text-lg font-black text-gray-800">시연 모드</h3>
-        <span class="bg-purple-100 text-purple-600 text-[10px] font-black px-2 py-0.5 rounded-full ml-auto">DEMO</span>
+    <div class="modal-overlay absolute inset-0" style="background:rgba(0,0,0,0.4)" onclick="closeTimePanel()"></div>
+    <div class="relative w-full animate-slide-up rounded-t-[20px] px-4 pb-6" style="background:var(--c-bg)">
+      <div class="sheet-handle mx-auto mb-5"></div>
+      <div class="flex items-center justify-between mb-1">
+        <h3 class="text-[20px] font-bold" style="color:var(--c-label)">시연 모드 ⏰</h3>
+        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full" style="background:rgba(175,82,222,0.12);color:var(--c-purple)">DEMO</span>
       </div>
-      <p class="text-xs text-gray-400 mb-5">시열용으로 시간을 앞뒤로 이동할 수 있어요</p>
+      <p class="text-[13px] mb-4" style="color:var(--c-label3)">시열용으로 날짜를 앞뒤로 이동할 수 있어요</p>
 
-      <!-- Current simulated date -->
-      <div class="bg-purple-50 rounded-2xl p-4 mb-5 text-center">
-        <p class="text-xs text-purple-400 font-semibold mb-1">시뮬레이션 날짜</p>
-        <p class="text-xl font-black text-purple-700" id="simDateDisplay">-</p>
-        <p class="mt-1" id="offsetDisplay">-</p>
+      <div class="ios-card px-4 py-3 mb-4 text-center">
+        <p class="text-[11px] font-semibold uppercase mb-1" style="color:var(--c-label3)">시뮬레이션 날짜</p>
+        <p class="text-[18px] font-bold" style="color:var(--c-label)" id="simDateDisplay">-</p>
+        <p class="text-[13px] font-semibold mt-0.5" id="offsetDisplay" style="color:var(--c-label3)">현재 시간</p>
       </div>
 
-      <!-- Quick shift buttons -->
-      <p class="text-xs font-bold text-gray-500 mb-2">⚡ 빠른 이동</p>
-      <div class="grid grid-cols-4 gap-2 mb-3">
-        <button onclick="shiftTime(-30)" class="bg-blue-50 text-blue-600 font-black text-xs py-3 rounded-2xl active:scale-95 transition-all">← 1달</button>
-        <button onclick="shiftTime(-7)"  class="bg-blue-50 text-blue-600 font-black text-xs py-3 rounded-2xl active:scale-95 transition-all">← 7일</button>
-        <button onclick="shiftTime(-1)"  class="bg-blue-50 text-blue-600 font-black text-xs py-3 rounded-2xl active:scale-95 transition-all">← 1일</button>
-        <button onclick="shiftTime(1)"   class="bg-pink-50 text-pink-600 font-black text-xs py-3 rounded-2xl active:scale-95 transition-all">1일 →</button>
+      <p class="text-[11px] font-semibold uppercase mb-2" style="color:var(--c-label3)">빠른 이동</p>
+      <div class="grid grid-cols-4 gap-2 mb-2">
+        <button onclick="shiftTime(-30)" class="ios-btn ios-btn-gray text-[13px] py-3 rounded-xl">← 1달</button>
+        <button onclick="shiftTime(-7)"  class="ios-btn ios-btn-gray text-[13px] py-3 rounded-xl">← 7일</button>
+        <button onclick="shiftTime(-1)"  class="ios-btn ios-btn-gray text-[13px] py-3 rounded-xl">← 1일</button>
+        <button onclick="shiftTime(1)"   class="ios-btn ios-btn-gray text-[13px] py-3 rounded-xl" style="color:var(--c-blue)">1일 →</button>
       </div>
       <div class="grid grid-cols-3 gap-2 mb-5">
-        <button onclick="shiftTime(3)"   class="bg-pink-50 text-pink-600 font-black text-xs py-3 rounded-2xl active:scale-95 transition-all">+3일</button>
-        <button onclick="shiftTime(7)"   class="bg-pink-50 text-pink-600 font-black text-xs py-3 rounded-2xl active:scale-95 transition-all">+7일</button>
-        <button onclick="shiftTime(30)"  class="bg-gradient-to-r from-pink-400 to-purple-400 text-white font-black text-xs py-3 rounded-2xl active:scale-95 transition-all">+1달 →</button>
+        <button onclick="shiftTime(3)"  class="ios-btn ios-btn-gray text-[13px] py-3 rounded-xl" style="color:var(--c-blue)">+3일</button>
+        <button onclick="shiftTime(7)"  class="ios-btn ios-btn-gray text-[13px] py-3 rounded-xl" style="color:var(--c-blue)">+7일</button>
+        <button onclick="shiftTime(30)" class="ios-btn ios-btn-primary text-[13px] py-3 rounded-xl">+1달 →</button>
       </div>
-
       <div class="flex gap-3">
-        <button onclick="resetTime()" class="flex-1 bg-gray-100 text-gray-600 font-bold py-3.5 rounded-2xl active:scale-95 transition-all">현재로 돌아가기 ↩</button>
-        <button onclick="closeTimePanel()" class="flex-1 bg-gradient-to-r from-purple-400 to-pink-400 text-white font-black py-3.5 rounded-2xl active:scale-95 transition-all shadow-md">닫기 ✔️</button>
+        <button onclick="resetTime()" class="ios-btn ios-btn-gray flex-1">현재로 ↩</button>
+        <button onclick="closeTimePanel()" class="ios-btn ios-btn-primary flex-1">닫기</button>
       </div>
     </div>
   </div>
 
   <!-- Budget Modal -->
   <div id="budgetModal" class="hidden fixed inset-0 z-50 flex items-end justify-center max-w-[430px] mx-auto">
-    <div class="modal-overlay absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeBudgetModal()"></div>
-    <div class="relative w-full bg-white rounded-t-3xl p-6 shadow-2xl animate-slide-up">
-      <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5"></div>
-      <h3 class="text-lg font-black text-gray-800 mb-1">이번 달 예산 설정 💰</h3>
-      <p class="text-xs text-gray-400 mb-5">용돈 또는 이번 달 쓸 금액을 입력해요</p>
-      <div class="relative mb-4">
-        <input type="number" id="budgetInput" placeholder="예: 100000" inputmode="numeric"
-          class="w-full bg-pink-50 border-2 border-pink-200 rounded-2xl px-4 py-3.5 text-gray-800 font-bold text-lg focus:border-pink-400 transition-all pr-10" />
-        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">원</span>
+    <div class="modal-overlay absolute inset-0" style="background:rgba(0,0,0,0.4)" onclick="closeBudgetModal()"></div>
+    <div class="relative w-full animate-slide-up rounded-t-[20px] px-4 pb-6" style="background:var(--c-bg)">
+      <div class="sheet-handle mx-auto mb-5"></div>
+      <h3 class="text-[20px] font-bold mb-1" style="color:var(--c-label)">예산 설정 💰</h3>
+      <p class="text-[13px] mb-4" style="color:var(--c-label3)">이번 달 쓸 금액을 입력해요</p>
+      <div class="ios-card px-4 py-3 mb-4">
+        <p class="text-[11px] font-semibold uppercase mb-2" style="color:var(--c-label3)">금액</p>
+        <div class="flex items-center gap-2">
+          <input type="number" id="budgetInput" placeholder="100,000" inputmode="numeric" class="ios-input" style="font-size:20px;font-weight:700;" />
+          <span class="text-[16px] font-semibold shrink-0" style="color:var(--c-label)">원</span>
+        </div>
       </div>
       <div class="flex gap-3">
-        <button onclick="closeBudgetModal()" class="flex-1 bg-gray-100 text-gray-600 font-bold py-3.5 rounded-2xl active:scale-95 transition-all">취소</button>
-        <button onclick="saveBudget()" class="flex-1 bg-gradient-to-r from-pink-400 to-purple-400 text-white font-black py-3.5 rounded-2xl active:scale-95 transition-all shadow-md">저장 ✨</button>
+        <button onclick="closeBudgetModal()" class="ios-btn ios-btn-gray flex-1">취소</button>
+        <button onclick="saveBudget()" class="ios-btn ios-btn-primary flex-1">저장</button>
       </div>
     </div>
   </div>
 
   <!-- Transaction Modal -->
   <div id="txModal" class="hidden fixed inset-0 z-50 flex items-end justify-center max-w-[430px] mx-auto">
-    <div class="modal-overlay absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeTxModal()"></div>
-    <div class="relative w-full bg-white rounded-t-3xl p-6 shadow-2xl animate-slide-up max-h-[90dvh] overflow-y-auto">
-      <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5"></div>
-      <h3 class="text-lg font-black text-gray-800 mb-5">소비 추가 ✍️</h3>
+    <div class="modal-overlay absolute inset-0" style="background:rgba(0,0,0,0.4)" onclick="closeTxModal()"></div>
+    <div class="relative w-full animate-slide-up rounded-t-[20px] px-4 pb-6 max-h-[90dvh] overflow-y-auto" style="background:var(--c-bg)">
+      <div class="sheet-handle mx-auto mb-5"></div>
+      <h3 class="text-[20px] font-bold mb-4" style="color:var(--c-label)">소비 추가 ✍️</h3>
 
       <!-- Amount -->
-      <div class="mb-4">
-        <label class="text-xs font-bold text-gray-500 mb-1.5 block">💸 사용 금액</label>
-        <div class="relative">
-          <input type="number" id="txAmount" placeholder="0" inputmode="numeric"
-            class="w-full bg-pink-50 border-2 border-pink-200 rounded-2xl px-4 py-3.5 text-gray-800 font-bold text-xl focus:border-pink-400 transition-all pr-10" />
-          <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">원</span>
+      <div class="ios-card px-4 py-3 mb-3">
+        <p class="text-[11px] font-semibold uppercase mb-2" style="color:var(--c-label3)">금액</p>
+        <div class="flex items-center gap-2">
+          <input type="number" id="txAmount" placeholder="0" inputmode="numeric" class="ios-input" style="font-size:24px;font-weight:700;" />
+          <span class="text-[16px] font-semibold shrink-0" style="color:var(--c-label)">원</span>
+        </div>
+        <!-- Quick amounts -->
+        <div class="flex gap-2 mt-3">
+          <button onclick="addQuick(1000)"  class="flex-1 text-[12px] font-semibold py-2 rounded-xl active:opacity-60" style="background:var(--c-fill);color:var(--c-blue)">+1천</button>
+          <button onclick="addQuick(3000)"  class="flex-1 text-[12px] font-semibold py-2 rounded-xl active:opacity-60" style="background:var(--c-fill);color:var(--c-blue)">+3천</button>
+          <button onclick="addQuick(5000)"  class="flex-1 text-[12px] font-semibold py-2 rounded-xl active:opacity-60" style="background:var(--c-fill);color:var(--c-blue)">+5천</button>
+          <button onclick="addQuick(10000)" class="flex-1 text-[12px] font-semibold py-2 rounded-xl active:opacity-60" style="background:var(--c-fill);color:var(--c-blue)">+1만</button>
         </div>
       </div>
 
-      <!-- Quick amount buttons -->
-      <div class="flex gap-2 mb-4">
-        <button onclick="addQuick(1000)" class="flex-1 bg-pink-50 text-pink-600 text-xs font-bold py-2 rounded-xl active:scale-95 transition-all">+1,000</button>
-        <button onclick="addQuick(3000)" class="flex-1 bg-pink-50 text-pink-600 text-xs font-bold py-2 rounded-xl active:scale-95 transition-all">+3,000</button>
-        <button onclick="addQuick(5000)" class="flex-1 bg-pink-50 text-pink-600 text-xs font-bold py-2 rounded-xl active:scale-95 transition-all">+5,000</button>
-        <button onclick="addQuick(10000)" class="flex-1 bg-pink-50 text-pink-600 text-xs font-bold py-2 rounded-xl active:scale-95 transition-all">+10,000</button>
-      </div>
-
       <!-- Place -->
-      <div class="mb-4">
-        <label class="text-xs font-bold text-gray-500 mb-1.5 block">🏪 사용처</label>
-        <input type="text" id="txPlace" placeholder="예: GS25, 버스, 올리브영..."
-          class="w-full bg-gray-50 border-2 border-gray-200 rounded-2xl px-4 py-3.5 text-gray-800 font-semibold focus:border-pink-400 transition-all" />
+      <div class="ios-card px-4 py-3 mb-3">
+        <p class="text-[11px] font-semibold uppercase mb-2" style="color:var(--c-label3)">사용처</p>
+        <input type="text" id="txPlace" placeholder="예: GS25, 버스, 올리브영..." class="ios-input" />
       </div>
 
       <!-- Category -->
-      <div class="mb-4">
-        <label class="text-xs font-bold text-gray-500 mb-1.5 block">🏷️ 카테고리</label>
+      <div class="ios-card px-4 py-3 mb-3">
+        <p class="text-[11px] font-semibold uppercase mb-3" style="color:var(--c-label3)">카테고리</p>
         <div class="grid grid-cols-5 gap-2">
-          <button class="cat-select-btn active flex flex-col items-center gap-1 p-2 rounded-2xl bg-orange-100 border-2 border-orange-300 transition-all" data-cat="매점/식비" onclick="selectCat(this)">
-            <span class="text-xl">🍔</span><span class="text-[9px] font-bold text-orange-600">매점/식비</span>
+          <button class="cat-select-btn flex flex-col items-center gap-1 py-2 rounded-xl border-2 active:opacity-70" data-cat="매점/식비" onclick="selectCat(this)" style="background:#FFF3E0;border-color:#E65100">
+            <span class="text-xl">🍔</span><span class="text-[9px] font-bold" style="color:#E65100">매점/식비</span>
           </button>
-          <button class="cat-select-btn flex flex-col items-center gap-1 p-2 rounded-2xl bg-gray-50 border-2 border-transparent hover:border-gray-200 transition-all" data-cat="코노/PC방" onclick="selectCat(this)">
-            <span class="text-xl">🎮</span><span class="text-[9px] font-bold text-purple-600">코노/PC방</span>
+          <button class="cat-select-btn flex flex-col items-center gap-1 py-2 rounded-xl border-2 border-transparent active:opacity-70" data-cat="코노/PC방" onclick="selectCat(this)" style="background:var(--c-fill)">
+            <span class="text-xl">🎮</span><span class="text-[9px] font-bold" style="color:#6A1B9A">코노/PC방</span>
           </button>
-          <button class="cat-select-btn flex flex-col items-center gap-1 p-2 rounded-2xl bg-gray-50 border-2 border-transparent hover:border-gray-200 transition-all" data-cat="교통비" onclick="selectCat(this)">
-            <span class="text-xl">🚌</span><span class="text-[9px] font-bold text-blue-600">교통비</span>
+          <button class="cat-select-btn flex flex-col items-center gap-1 py-2 rounded-xl border-2 border-transparent active:opacity-70" data-cat="교통비" onclick="selectCat(this)" style="background:var(--c-fill)">
+            <span class="text-xl">🚌</span><span class="text-[9px] font-bold" style="color:#1565C0">교통비</span>
           </button>
-          <button class="cat-select-btn flex flex-col items-center gap-1 p-2 rounded-2xl bg-gray-50 border-2 border-transparent hover:border-gray-200 transition-all" data-cat="쇼핑/뷰티" onclick="selectCat(this)">
-            <span class="text-xl">💄</span><span class="text-[9px] font-bold text-pink-600">쇼핑/뷰티</span>
+          <button class="cat-select-btn flex flex-col items-center gap-1 py-2 rounded-xl border-2 border-transparent active:opacity-70" data-cat="쇼핑/뷰티" onclick="selectCat(this)" style="background:var(--c-fill)">
+            <span class="text-xl">💄</span><span class="text-[9px] font-bold" style="color:#880E4F">쇼핑/뷰티</span>
           </button>
-          <button class="cat-select-btn flex flex-col items-center gap-1 p-2 rounded-2xl bg-gray-50 border-2 border-transparent hover:border-gray-200 transition-all" data-cat="기타" onclick="selectCat(this)">
-            <span class="text-xl">💫</span><span class="text-[9px] font-bold text-green-600">기타</span>
+          <button class="cat-select-btn flex flex-col items-center gap-1 py-2 rounded-xl border-2 border-transparent active:opacity-70" data-cat="기타" onclick="selectCat(this)" style="background:var(--c-fill)">
+            <span class="text-xl">💫</span><span class="text-[9px] font-bold" style="color:#1B5E20">기타</span>
           </button>
         </div>
       </div>
 
       <!-- Date -->
-      <div class="mb-6">
-        <label class="text-xs font-bold text-gray-500 mb-1.5 block">📅 날짜</label>
-        <input type="date" id="txDate"
-          class="w-full bg-gray-50 border-2 border-gray-200 rounded-2xl px-4 py-3.5 text-gray-800 font-semibold focus:border-pink-400 transition-all" />
+      <div class="ios-card px-4 py-3 mb-5">
+        <p class="text-[11px] font-semibold uppercase mb-2" style="color:var(--c-label3)">날짜</p>
+        <input type="date" id="txDate" class="ios-input" style="font-size:15px;" />
       </div>
 
       <div class="flex gap-3">
-        <button onclick="closeTxModal()" class="flex-1 bg-gray-100 text-gray-600 font-bold py-3.5 rounded-2xl active:scale-95 transition-all">취소</button>
-        <button onclick="saveTx()" class="flex-1 bg-gradient-to-r from-pink-400 to-purple-400 text-white font-black py-3.5 rounded-2xl active:scale-95 transition-all shadow-md">저장 ✨</button>
+        <button onclick="closeTxModal()" class="ios-btn ios-btn-gray flex-1">취소</button>
+        <button onclick="saveTx()" class="ios-btn ios-btn-primary flex-1">저장</button>
       </div>
     </div>
   </div>
 
   <!-- Wishlist Modal -->
   <div id="wishModal" class="hidden fixed inset-0 z-50 flex items-end justify-center max-w-[430px] mx-auto">
-    <div class="modal-overlay absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeWishModal()"></div>
-    <div class="relative w-full bg-white rounded-t-3xl p-6 shadow-2xl animate-slide-up">
-      <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5"></div>
-      <h3 class="text-lg font-black text-gray-800 mb-1">갖고 싶은 물건 등록 🛍️</h3>
-      <p class="text-xs text-gray-400 mb-5">3일 쿨다운 후 구매 결정!</p>
+    <div class="modal-overlay absolute inset-0" style="background:rgba(0,0,0,0.4)" onclick="closeWishModal()"></div>
+    <div class="relative w-full animate-slide-up rounded-t-[20px] px-4 pb-6" style="background:var(--c-bg)">
+      <div class="sheet-handle mx-auto mb-5"></div>
+      <h3 class="text-[20px] font-bold mb-1" style="color:var(--c-label)">위시리스트 추가 🛍️</h3>
+      <p class="text-[13px] mb-4" style="color:var(--c-label3)">3일 쿨다운 후 구매 결정!</p>
 
-      <div class="mb-4">
-        <label class="text-xs font-bold text-gray-500 mb-1.5 block">🛍️ 물건 이름</label>
-        <input type="text" id="wishName" placeholder="예: 에어팟, 나이키 신발..."
-          class="w-full bg-purple-50 border-2 border-purple-200 rounded-2xl px-4 py-3.5 text-gray-800 font-semibold focus:border-purple-400 transition-all" />
+      <div class="ios-card px-4 py-3 mb-3">
+        <p class="text-[11px] font-semibold uppercase mb-2" style="color:var(--c-label3)">물건 이름</p>
+        <input type="text" id="wishName" placeholder="예: 에어팟, 나이키 신발..." class="ios-input" />
       </div>
-
-      <div class="mb-6">
-        <label class="text-xs font-bold text-gray-500 mb-1.5 block">💰 가격</label>
-        <div class="relative">
-          <input type="number" id="wishPrice" placeholder="0" inputmode="numeric"
-            class="w-full bg-purple-50 border-2 border-purple-200 rounded-2xl px-4 py-3.5 text-gray-800 font-bold text-xl focus:border-purple-400 transition-all pr-10" />
-          <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">원</span>
+      <div class="ios-card px-4 py-3 mb-5">
+        <p class="text-[11px] font-semibold uppercase mb-2" style="color:var(--c-label3)">가격</p>
+        <div class="flex items-center gap-2">
+          <input type="number" id="wishPrice" placeholder="0" inputmode="numeric" class="ios-input" style="font-size:20px;font-weight:700;" />
+          <span class="text-[16px] font-semibold shrink-0" style="color:var(--c-label)">원</span>
         </div>
       </div>
 
       <div class="flex gap-3">
-        <button onclick="closeWishModal()" class="flex-1 bg-gray-100 text-gray-600 font-bold py-3.5 rounded-2xl active:scale-95 transition-all">취소</button>
-        <button onclick="saveWish()" class="flex-1 bg-gradient-to-r from-purple-400 to-pink-400 text-white font-black py-3.5 rounded-2xl active:scale-95 transition-all shadow-md">등록 🛒</button>
+        <button onclick="closeWishModal()" class="ios-btn ios-btn-gray flex-1">취소</button>
+        <button onclick="saveWish()" class="ios-btn ios-btn-primary flex-1">등록 🛒</button>
       </div>
     </div>
   </div>
 
   <!-- Mileage Toast -->
   <div id="mileageToast" class="hidden fixed bottom-24 left-4 right-4 max-w-[430px] mx-auto z-50">
-    <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl px-5 py-4 shadow-xl flex items-center gap-3 animate-pop-in">
-      <span class="text-3xl">🐷</span>
-      <div class="flex-1">
-        <p class="font-black text-sm" id="toastText">착한 소비 마일리지 획득!</p>
-        <p class="text-xs text-purple-200" id="toastSub">계속 절약해봐요!</p>
+    <div class="animate-pop-in flex items-center gap-3 rounded-2xl px-4 py-3.5 shadow-lg" style="background:rgba(30,30,30,0.92);backdrop-filter:blur(12px)">
+      <span class="text-2xl" id="toastPoints">🐷</span>
+      <div class="flex-1 min-w-0">
+        <p class="text-[14px] font-semibold text-white truncate" id="toastText">마일리지 획득!</p>
+        <p class="text-[12px] mt-0.5" style="color:rgba(255,255,255,0.6)" id="toastSub">절약 중이에요!</p>
       </div>
-      <span class="text-2xl font-black" id="toastPoints">+0P</span>
     </div>
   </div>
 
   <!-- Confirm Dialog -->
-  <div id="confirmDialog" class="hidden fixed inset-0 z-50 flex items-center justify-center max-w-[430px] mx-auto px-6">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeConfirm()"></div>
-    <div class="relative w-full bg-white rounded-3xl p-6 shadow-2xl animate-pop-in">
-      <p class="text-base font-black text-gray-800 mb-1 text-center" id="confirmTitle">정말로?</p>
-      <p class="text-sm text-gray-500 text-center mb-6" id="confirmMsg">이 작업을 진행할까요?</p>
-      <div class="flex gap-3">
-        <button onclick="closeConfirm()" class="flex-1 bg-gray-100 text-gray-600 font-bold py-3 rounded-2xl active:scale-95 transition-all">아니요</button>
-        <button onclick="confirmAction()" id="confirmOkBtn" class="flex-1 bg-gradient-to-r from-pink-400 to-purple-400 text-white font-black py-3 rounded-2xl active:scale-95 transition-all">네!</button>
+  <div id="confirmDialog" class="hidden fixed inset-0 z-50 flex items-center justify-center max-w-[430px] mx-auto px-8">
+    <div class="absolute inset-0" style="background:rgba(0,0,0,0.4)" onclick="closeConfirm()"></div>
+    <div class="relative w-full animate-pop-in rounded-2xl overflow-hidden" style="background:rgba(242,242,247,0.98);backdrop-filter:blur(20px)">
+      <div class="px-6 pt-6 pb-4 text-center">
+        <p class="text-[17px] font-bold mb-1" style="color:var(--c-label)" id="confirmTitle">정말로?</p>
+        <p class="text-[13px]" style="color:var(--c-label3)" id="confirmMsg">이 작업을 진행할까요?</p>
+      </div>
+      <div style="height:0.5px;background:var(--c-sep)"></div>
+      <div class="flex" style="height:44px">
+        <button onclick="closeConfirm()" class="flex-1 text-[17px] font-semibold" style="color:var(--c-blue)">아니요</button>
+        <div style="width:0.5px;background:var(--c-sep)"></div>
+        <button onclick="confirmAction()" id="confirmOkBtn" class="flex-1 text-[17px] font-bold" style="color:var(--c-red)">확인</button>
       </div>
     </div>
   </div>
 
-</div><!-- end app-shell -->
-
+</div>
 <script src="app.js"></script>
 </body>
 </html>

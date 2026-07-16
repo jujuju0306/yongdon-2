@@ -24,14 +24,26 @@ const LEVELS = [
 const COOLDOWN_DAYS = 3;
 const MILEAGE_RATE  = 100; // 절약 금액 / 100 = 포인트
 
+const GIFT_CARDS = [
+  { id: 'gc1', name: '스타벅스 아메리카노', emoji: '☕', brand: 'Starbucks', price: 150, value: '4,500원권', color: '#00704A', bg: '#d4edda' },
+  { id: 'gc2', name: '버블티 쿠폰',        emoji: '🧋', brand: '공차',     price: 120, value: '5,000원권', color: '#8B4513', bg: '#fdf0e0' },
+  { id: 'gc3', name: '맥도날드 버거',      emoji: '🍔', brand: "McDonald's", price: 200, value: '빅맥 세트', color: '#DA020E', bg: '#fdecea' },
+  { id: 'gc4', name: '넥슨 캐시',          emoji: '🎮', brand: 'Nexon',    price: 300, value: '5,000원권', color: '#003087', bg: '#dce8fb' },
+  { id: 'gc5', name: '편의점 상품권',      emoji: '🏪', brand: 'CU/GS25',  price: 250, value: '5,000원권', color: '#6d28d9', bg: '#ede9fe' },
+  { id: 'gc6', name: '영화관 팝콘',        emoji: '🍿', brand: 'CGV',      price: 180, value: '팝콘 M사이즈', color: '#dc2626', bg: '#fee2e2' },
+  { id: 'gc7', name: '배달앱 할인쿠폰',   emoji: '🛵', brand: '배달의민족', price: 400, value: '3,000원 할인', color: '#2563eb', bg: '#dbeafe' },
+  { id: 'gc8', name: '올리브영 쿠폰',     emoji: '💄', brand: 'Oliveyoung', price: 500, value: '5,000원 할인', color: '#be185d', bg: '#fce7f3' },
+];
+
 // ───────────────────────────────────────────────
 // 2. STATE
 // ───────────────────────────────────────────────
 let state = {
   budget: 0,
   transactions: [],
-  mileage: { points: 0, history: [] },
+  mileage: { points: 0, history: [], giftCards: [] },
   wishlist: [],
+  timeOffsetDays: 0,  // 시연용 시간 오프셋 (일 단위)
 };
 
 let currentTab      = 'home';
@@ -59,12 +71,19 @@ function saveState() {
 // ───────────────────────────────────────────────
 // 4. DATE HELPERS
 // ───────────────────────────────────────────────
-function today() {
-  return new Date().toISOString().split('T')[0];
+
+// 시연용 시뮬레이션 시간 반환
+function getSimulatedDate() {
+  return new Date(Date.now() + (state.timeOffsetDays || 0) * 24 * 60 * 60 * 1000);
 }
 
-function getYM(d = new Date()) {
-  return { y: d.getFullYear(), m: d.getMonth() + 1 };
+function today() {
+  return getSimulatedDate().toISOString().split('T')[0];
+}
+
+function getYM(d) {
+  const date = d || getSimulatedDate();
+  return { y: date.getFullYear(), m: date.getMonth() + 1 };
 }
 
 function fmtMoney(n) {
@@ -82,8 +101,8 @@ function fmtDate(dateStr) {
   return `${d.getMonth() + 1}월 ${d.getDate()}일 (${days[d.getDay()]})`;
 }
 
-function diffMs(from, to = new Date()) {
-  return new Date(to) - new Date(from);
+function diffMs(from, to) {
+  return new Date(to || getSimulatedDate()) - new Date(from);
 }
 
 // ───────────────────────────────────────────────
@@ -106,7 +125,7 @@ function getThisMonthSpent() {
 }
 
 function getLastMonthTotal() {
-  const now = new Date();
+  const now = getSimulatedDate();
   const d = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const { y, m } = getYM(d);
   return sumAmount(txByMonth(y, m));
@@ -125,10 +144,22 @@ function getLevelInfo(points) {
 
 // Header date
 function renderHeaderDate() {
-  const now = new Date();
+  const now  = getSimulatedDate();
   const days = ['일', '월', '화', '수', '목', '금', '토'];
-  document.getElementById('headerDate').textContent =
-    `${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
+  const dateStr = `${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
+  document.getElementById('headerDate').textContent = dateStr;
+
+  // 시연 모드 뱃지
+  const badge = document.getElementById('demoBadge');
+  const offset = state.timeOffsetDays || 0;
+  if (badge) {
+    if (offset !== 0) {
+      badge.textContent = offset > 0 ? `+${offset}일` : `${offset}일`;
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
+  }
 }
 
 // ─── Dashboard ───
@@ -202,7 +233,7 @@ function renderDonut(spent, budget) {
 }
 
 function renderCompare() {
-  const now  = new Date();
+  const now  = getSimulatedDate();
   const last = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const { y: ty, m: tm } = getYM(now);
   const { y: ly, m: lm } = getYM(last);
@@ -394,6 +425,12 @@ function renderReward() {
     document.getElementById('nextLevelHint').textContent = '최고 레벨 달성! 👑';
   }
 
+  // Gift card store
+  renderGiftCardStore(pts);
+
+  // Owned gift cards
+  renderOwnedGiftCards();
+
   // Level guide
   const guideEl = document.getElementById('levelGuide');
   guideEl.innerHTML = LEVELS.map((lv, i) => {
@@ -417,14 +454,105 @@ function renderReward() {
   } else {
     histEl.innerHTML = hist.map(h => `
       <div class="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-        <span class="text-xl">🐷</span>
+        <span class="text-xl">${h.type === 'spend' ? '🎁' : '🐷'}</span>
         <div class="flex-1">
           <p class="text-sm font-semibold text-gray-700">${h.msg}</p>
           <p class="text-xs text-gray-400">${h.date}</p>
         </div>
-        <span class="font-black text-purple-500">+${h.points}P</span>
+        <span class="font-black ${h.type === 'spend' ? 'text-red-400' : 'text-purple-500'}">${h.type === 'spend' ? '-' : '+'}${h.points}P</span>
       </div>`).join('');
   }
+}
+
+function renderGiftCardStore(pts) {
+  const el = document.getElementById('giftCardStore');
+  if (!el) return;
+
+  // Sync badge
+  const badge = document.getElementById('storePointsBadge');
+  if (badge) badge.textContent = pts.toLocaleString();
+
+  el.innerHTML = GIFT_CARDS.map(gc => {
+    const canBuy = pts >= gc.price;
+    return `
+    <div class="flex items-center gap-3 p-3 rounded-2xl border-2 transition-all ${canBuy ? 'border-purple-200 bg-white' : 'border-gray-100 bg-gray-50 opacity-60'}">
+      <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0" style="background:${gc.bg}">${gc.emoji}</div>
+      <div class="flex-1 min-w-0">
+        <p class="font-bold text-gray-800 text-sm">${gc.name}</p>
+        <p class="text-xs text-gray-400">${gc.brand} · ${gc.value}</p>
+        <p class="text-xs font-black mt-0.5" style="color:${gc.color}">${gc.price}P</p>
+      </div>
+      <button onclick="buyGiftCard('${gc.id}')"
+        class="shrink-0 text-xs font-black px-3 py-2 rounded-xl transition-all active:scale-95 ${canBuy
+          ? 'bg-gradient-to-r from-purple-400 to-pink-400 text-white shadow-sm'
+          : 'bg-gray-200 text-gray-400 cursor-not-allowed'}">
+        ${canBuy ? '교환 🎁' : `${gc.price - pts}P 부족`}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function renderOwnedGiftCards() {
+  const el   = document.getElementById('ownedGiftCards');
+  const wrap = document.getElementById('ownedGiftCardsWrap');
+  if (!el || !wrap) return;
+
+  const owned = (state.mileage.giftCards || []).slice().reverse();
+  if (!owned.length) {
+    el.innerHTML = '<p class="text-center text-gray-300 text-sm py-3">교환한 기프티콘이 없어요 🎁</p>';
+    wrap.classList.remove('hidden');
+    return;
+  }
+
+  wrap.classList.remove('hidden');
+  el.innerHTML = owned.map(item => {
+    const gc = GIFT_CARDS.find(g => g.id === item.gcId) || {};
+    return `
+    <div class="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
+      <span class="text-2xl">${gc.emoji || '🎁'}</span>
+      <div class="flex-1">
+        <p class="text-sm font-bold text-gray-700">${item.name}</p>
+        <p class="text-xs text-gray-400">${item.date}</p>
+      </div>
+      <span class="text-xs bg-green-100 text-green-700 font-bold px-2 py-1 rounded-full">보유중 ✓</span>
+    </div>`;
+  }).join('');
+}
+
+function buyGiftCard(gcId) {
+  const gc = GIFT_CARDS.find(g => g.id === gcId);
+  if (!gc) return;
+  const pts = state.mileage.points;
+  if (pts < gc.price) {
+    showToast('포인트가 부족해요 😢', `${gc.price - pts}P 더 모아야 해요!`, '💸');
+    return;
+  }
+  openConfirm(
+    `${gc.emoji} ${gc.name} 교환`,
+    `${gc.price}P를 사용해서 ${gc.name} (${gc.value})을 교환할까요?`,
+    () => {
+      state.mileage.points -= gc.price;
+      state.mileage.giftCards = state.mileage.giftCards || [];
+      state.mileage.giftCards.push({
+        gcId:  gc.id,
+        name:  gc.name,
+        value: gc.value,
+        date:  fmtDate(today()),
+      });
+      state.mileage.history = state.mileage.history || [];
+      state.mileage.history.push({
+        type:   'spend',
+        points: gc.price,
+        msg:    `${gc.name} 교환!`,
+        date:   fmtDate(today()),
+      });
+      saveState();
+      renderReward();
+      renderMileagePreview();
+      launchConfetti();
+      showToast(`${gc.name} 교환 완료! 🎉`, `${gc.value} 기프티콘이 생겼어요!`, gc.emoji);
+    }
+  );
 }
 
 // ─── Wishlist ───
@@ -446,7 +574,7 @@ function renderWishlist() {
   el.innerHTML = sorted.map(w => {
     const addedAt   = new Date(w.addedAt);
     const readyAt   = new Date(addedAt.getTime() + COOLDOWN_DAYS * 24 * 60 * 60 * 1000);
-    const now       = new Date();
+    const now       = getSimulatedDate();
     const isReady   = now >= readyAt;
     const isDone    = w.status === 'bought' || w.status === 'skipped';
     const daysLeft  = Math.max(0, Math.ceil((readyAt - now) / (1000 * 60 * 60 * 24)));
@@ -797,7 +925,7 @@ function saveWish() {
     id:      crypto.randomUUID(),
     name,
     price,
-    addedAt: new Date().toISOString(),
+    addedAt: getSimulatedDate().toISOString(),
     status:  'pending',
   });
 
@@ -860,7 +988,7 @@ function startWishTimer() {
   if (currentTab !== 'wish') return;
 
   wishTimerInterval = setInterval(() => {
-    const now = new Date();
+    const now = getSimulatedDate();
     document.querySelectorAll('.countdown-ring[data-id]').forEach(el => {
       const id   = el.dataset.id;
       const item = state.wishlist.find(w => w.id === id);
@@ -868,7 +996,7 @@ function startWishTimer() {
       const addedAt = new Date(item.addedAt);
       const readyAt = new Date(addedAt.getTime() + COOLDOWN_DAYS * 24 * 60 * 60 * 1000);
       if (now >= readyAt) {
-        renderWishlist(); // re-render to show buttons
+        renderWishlist();
         clearInterval(wishTimerInterval);
         return;
       }
@@ -945,7 +1073,7 @@ function shakeInput(id) {
 function seedDemoData() {
   if (localStorage.getItem('yongdong_seeded')) return;
 
-  const now   = new Date();
+  const now   = getSimulatedDate();
   const y     = now.getFullYear();
   const m     = now.getMonth() + 1;
   const ly    = m === 1 ? y - 1 : y;
@@ -974,10 +1102,12 @@ function seedDemoData() {
     ...t, id: crypto.randomUUID()
   }));
   state.mileage = {
-    points: 35,
+    points: 175,
+    giftCards: [],
     history: [
       { points: 20, msg: '지난달보다 1.5만원 아꼈어요!', date: fmtDate(`${y}-${pad(m)}-${pad(Math.min(5, now.getDate()))}`) },
       { points: 15, msg: '지난달보다 5천원 아꼈어요!', date: fmtDate(`${y}-${pad(m)}-${pad(Math.min(10, now.getDate()))}`) },
+      { points: 140, msg: '위시리스트 참기 성공! (나이키 에어포스)', date: fmtDate(`${y}-${pad(m)}-${pad(Math.min(12, now.getDate()))}`) },
     ]
   };
   state.wishlist = [
@@ -985,20 +1115,70 @@ function seedDemoData() {
       id:      crypto.randomUUID(),
       name:    '에어팟 프로',
       price:   350000,
-      addedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+      addedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
       status:  'pending',
     },
     {
       id:      crypto.randomUUID(),
       name:    '나이키 운동화',
       price:   120000,
-      addedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago = ready!
+      addedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
       status:  'pending',
     }
   ];
 
   saveState();
   localStorage.setItem('yongdong_seeded', '1');
+}
+
+// ───────────────────────────────────────────────
+// 16-A. TIME CONTROL (시연 모드)
+// ───────────────────────────────────────────────
+function openTimePanel() {
+  document.getElementById('timePanel').classList.remove('hidden');
+  updateTimePanelDisplay();
+}
+
+function closeTimePanel() {
+  document.getElementById('timePanel').classList.add('hidden');
+}
+
+function updateTimePanelDisplay() {
+  const sim = getSimulatedDate();
+  const days = ['일', '월', '화', '수', '목', '금', '토'];
+  const el = document.getElementById('simDateDisplay');
+  if (el) el.textContent = `${sim.getFullYear()}년 ${sim.getMonth()+1}월 ${sim.getDate()}일 (${days[sim.getDay()]})`;
+
+  const offsetEl = document.getElementById('offsetDisplay');
+  const off = state.timeOffsetDays || 0;
+  if (offsetEl) {
+    offsetEl.textContent = off === 0 ? '현재 시간' : (off > 0 ? `+${off}일 후` : `${off}일 전`);
+    offsetEl.className = off === 0
+      ? 'text-sm font-black text-gray-500'
+      : 'text-sm font-black text-purple-600';
+  }
+}
+
+function shiftTime(days) {
+  state.timeOffsetDays = (state.timeOffsetDays || 0) + days;
+  saveState();
+  updateTimePanelDisplay();
+  renderHeaderDate();
+  if (currentTab === 'home')   renderDashboard();
+  if (currentTab === 'log')    renderTxLog();
+  if (currentTab === 'reward') renderReward();
+  if (currentTab === 'wish')   renderWishlist();
+}
+
+function resetTime() {
+  state.timeOffsetDays = 0;
+  saveState();
+  updateTimePanelDisplay();
+  renderHeaderDate();
+  if (currentTab === 'home')   renderDashboard();
+  if (currentTab === 'log')    renderTxLog();
+  if (currentTab === 'reward') renderReward();
+  if (currentTab === 'wish')   renderWishlist();
 }
 
 // ───────────────────────────────────────────────
@@ -1028,6 +1208,7 @@ document.addEventListener('DOMContentLoaded', () => {
       closeTxModal();
       closeWishModal();
       closeConfirm();
+      closeTimePanel();
     }
   });
 

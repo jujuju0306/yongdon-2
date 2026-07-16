@@ -168,11 +168,17 @@
         <p class="text-xs text-pink-400 font-bold tracking-widest uppercase">용동 🐷</p>
         <h1 class="text-xl font-black text-gray-800 leading-tight">용돈 관리 앱</h1>
       </div>
-      <div class="text-right">
+    <div class="text-right">
         <p class="text-xs text-gray-400" id="headerDate"></p>
-        <button onclick="openBudgetModal()" class="mt-1 bg-pink-100 text-pink-600 text-xs font-bold px-3 py-1.5 rounded-full hover:bg-pink-200 transition-all active:scale-95" id="budgetBtn">
-          예산 설정 ✏️
-        </button>
+        <div class="flex items-center gap-2 justify-end mt-1">
+          <span id="demoBadge" class="hidden bg-purple-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse"></span>
+          <button onclick="openTimePanel()" class="bg-purple-100 text-purple-600 text-xs font-bold px-2.5 py-1.5 rounded-full hover:bg-purple-200 transition-all active:scale-95" title="시연 모드">
+            ⏰ 시연
+          </button>
+          <button onclick="openBudgetModal()" class="bg-pink-100 text-pink-600 text-xs font-bold px-3 py-1.5 rounded-full hover:bg-pink-200 transition-all active:scale-95" id="budgetBtn">
+            예산 설정 ✏️
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -336,6 +342,26 @@
         </div>
       </div>
 
+      <!-- 🎁 Gift Card Store -->
+      <div class="glass-card rounded-3xl p-5 shadow-md">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <p class="text-sm font-bold text-gray-700">🎁 기프티콘 스토어</p>
+            <p class="text-xs text-gray-400">열심히 모은 포인트로 교환하세요!</p>
+          </div>
+          <div class="bg-gradient-to-r from-purple-400 to-pink-400 text-white text-xs font-black px-3 py-1.5 rounded-full">
+            포인트: <span id="storePointsBadge">0</span>P
+          </div>
+        </div>
+        <div id="giftCardStore" class="space-y-2"></div>
+      </div>
+
+      <!-- 🎀 Owned Gift Cards -->
+      <div id="ownedGiftCardsWrap" class="glass-card rounded-3xl p-5 shadow-md hidden">
+        <p class="text-sm font-bold text-gray-700 mb-3">💼 보유 기프티콘</p>
+        <div id="ownedGiftCards"></div>
+      </div>
+
       <!-- Level Guide -->
       <div class="glass-card rounded-3xl p-5 shadow-md">
         <p class="text-sm font-bold text-gray-700 mb-3">🏆 레벨 가이드</p>
@@ -346,9 +372,9 @@
 
       <!-- Mileage History -->
       <div class="glass-card rounded-3xl p-5 shadow-md">
-        <p class="text-sm font-bold text-gray-700 mb-3">📜 적립 내역</p>
+        <p class="text-sm font-bold text-gray-700 mb-3">📜 적립/사용 내역</p>
         <div id="mileageHistory" class="space-y-2">
-          <p class="text-center text-gray-300 text-sm py-3">아직 적립 내역이 없어요 🌸</p>
+          <p class="text-center text-gray-300 text-sm py-3">아직 내역이 없어요 🌸</p>
         </div>
       </div>
     </section>
@@ -387,6 +413,48 @@
   </main>
 
   <!-- ===== MODALS ===== -->
+
+  <!-- Time Control Panel -->
+  <div id="timePanel" class="hidden fixed inset-0 z-50 flex items-end justify-center max-w-[430px] mx-auto">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeTimePanel()"></div>
+    <div class="relative w-full bg-white rounded-t-3xl p-6 shadow-2xl animate-slide-up">
+      <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5"></div>
+
+      <!-- Header -->
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-xl">⏰</span>
+        <h3 class="text-lg font-black text-gray-800">시연 모드</h3>
+        <span class="bg-purple-100 text-purple-600 text-[10px] font-black px-2 py-0.5 rounded-full ml-auto">DEMO</span>
+      </div>
+      <p class="text-xs text-gray-400 mb-5">시열용으로 시간을 앞뒤로 이동할 수 있어요</p>
+
+      <!-- Current simulated date -->
+      <div class="bg-purple-50 rounded-2xl p-4 mb-5 text-center">
+        <p class="text-xs text-purple-400 font-semibold mb-1">시뮬레이션 날짜</p>
+        <p class="text-xl font-black text-purple-700" id="simDateDisplay">-</p>
+        <p class="mt-1" id="offsetDisplay">-</p>
+      </div>
+
+      <!-- Quick shift buttons -->
+      <p class="text-xs font-bold text-gray-500 mb-2">⚡ 빠른 이동</p>
+      <div class="grid grid-cols-4 gap-2 mb-3">
+        <button onclick="shiftTime(-30)" class="bg-blue-50 text-blue-600 font-black text-xs py-3 rounded-2xl active:scale-95 transition-all">← 1달</button>
+        <button onclick="shiftTime(-7)"  class="bg-blue-50 text-blue-600 font-black text-xs py-3 rounded-2xl active:scale-95 transition-all">← 7일</button>
+        <button onclick="shiftTime(-1)"  class="bg-blue-50 text-blue-600 font-black text-xs py-3 rounded-2xl active:scale-95 transition-all">← 1일</button>
+        <button onclick="shiftTime(1)"   class="bg-pink-50 text-pink-600 font-black text-xs py-3 rounded-2xl active:scale-95 transition-all">1일 →</button>
+      </div>
+      <div class="grid grid-cols-3 gap-2 mb-5">
+        <button onclick="shiftTime(3)"   class="bg-pink-50 text-pink-600 font-black text-xs py-3 rounded-2xl active:scale-95 transition-all">+3일</button>
+        <button onclick="shiftTime(7)"   class="bg-pink-50 text-pink-600 font-black text-xs py-3 rounded-2xl active:scale-95 transition-all">+7일</button>
+        <button onclick="shiftTime(30)"  class="bg-gradient-to-r from-pink-400 to-purple-400 text-white font-black text-xs py-3 rounded-2xl active:scale-95 transition-all">+1달 →</button>
+      </div>
+
+      <div class="flex gap-3">
+        <button onclick="resetTime()" class="flex-1 bg-gray-100 text-gray-600 font-bold py-3.5 rounded-2xl active:scale-95 transition-all">현재로 돌아가기 ↩</button>
+        <button onclick="closeTimePanel()" class="flex-1 bg-gradient-to-r from-purple-400 to-pink-400 text-white font-black py-3.5 rounded-2xl active:scale-95 transition-all shadow-md">닫기 ✔️</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Budget Modal -->
   <div id="budgetModal" class="hidden fixed inset-0 z-50 flex items-end justify-center max-w-[430px] mx-auto">

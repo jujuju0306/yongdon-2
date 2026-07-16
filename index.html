@@ -60,7 +60,7 @@
     .app-shell { max-width: 430px; margin: 0 auto; min-height: 100dvh; position: relative; }
 
     /* Donut Chart */
-    .donut-wrap { position: relative; width: 180px; height: 180px; }
+    .donut-wrap { position: relative; width: 130px; height: 130px; }
     .donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; }
 
     /* Category tag colors */
@@ -149,6 +149,226 @@
 
     /* Wishlist done item */
     .wishlist-done { opacity: 0.6; filter: grayscale(0.4); }
+
+    /* =============================================
+       PIG CHARACTER SYSTEM
+       ============================================= */
+    .pig-wrap {
+      position: relative;
+      width: 78px;
+      height: 84px;
+      flex-shrink: 0;
+      cursor: default;
+      user-select: none;
+    }
+
+    /* Ears */
+    .pig-ear {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      top: 0px;
+      z-index: 1;
+      transition: background-color 0.6s ease;
+    }
+    .pig-ear::after {
+      content: '';
+      position: absolute;
+      width: 13px; height: 13px;
+      border-radius: 50%;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255,255,255,0.35);
+    }
+    .pig-ear-l { left: 2px; }
+    .pig-ear-r { right: 2px; }
+
+    /* Body */
+    .pig-body {
+      position: absolute;
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      top: 12px; left: 4px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      overflow: visible;
+      transition: background-color 0.6s ease, box-shadow 0.6s ease;
+    }
+
+    /* Cheek blushes */
+    .pig-cheek {
+      position: absolute;
+      width: 18px; height: 11px;
+      border-radius: 50%;
+      background: rgba(220, 38, 38, 0.35);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      top: 52%;
+    }
+    .pig-cheek-l { left: 4px; }
+    .pig-cheek-r { right: 4px; }
+
+    /* Angry brows */
+    .pig-brows {
+      position: absolute;
+      top: 9px;
+      display: none;
+      gap: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      justify-content: space-between;
+    }
+    .pig-brow-l, .pig-brow-r {
+      width: 13px; height: 4px;
+      background: #7f1d1d;
+      border-radius: 2px;
+    }
+    .pig-brow-l { transform: rotate(28deg) translateY(2px); }
+    .pig-brow-r { transform: rotate(-28deg) translateY(2px); }
+
+    /* Eyes row */
+    .pig-eyes { display: flex; gap: 14px; position: relative; z-index: 3; }
+
+    .pig-eye {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: #1a1a1a;
+      position: relative;
+      transition: background-color 0.4s, transform 0.4s;
+    }
+    .pig-eye::after {
+      content: '';
+      position: absolute;
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      background: white;
+      top: 1px; right: 1px;
+    }
+
+    /* Snout */
+    .pig-snout {
+      width: 32px; height: 20px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      position: relative; z-index: 3;
+    }
+    .pig-nostril {
+      width: 7px; height: 6px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.18);
+    }
+
+    /* Mouth */
+    .pig-mouth {
+      width: 18px; height: 9px;
+      border: 3px solid #1a1a1a;
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      position: relative; z-index: 3;
+      transition: all 0.4s ease;
+    }
+
+    /* Sweat drop (top-right of body) */
+    .pig-sweat {
+      position: absolute;
+      right: -2px; top: 10px;
+      font-size: 13px;
+      line-height: 1;
+      opacity: 0;
+      transition: opacity 0.4s;
+      animation: sweat-drip 1.8s ease-in-out infinite;
+      z-index: 10;
+    }
+    .pig-sweat-2 {
+      right: -8px; top: 22px;
+      animation-delay: 0.6s;
+    }
+    @keyframes sweat-drip {
+      0%   { transform: translateY(0); opacity: 0; }
+      20%  { opacity: 1; }
+      90%  { transform: translateY(14px); opacity: 0.4; }
+      100% { transform: translateY(16px); opacity: 0; }
+    }
+
+    /* Steam (for angry, above body) */
+    .pig-steam {
+      position: absolute;
+      top: 2px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 15px;
+      opacity: 0;
+      transition: opacity 0.4s;
+      animation: steam-up 1.2s ease-in-out infinite;
+      z-index: 10;
+    }
+    @keyframes steam-up {
+      0%   { transform: translateX(-50%) translateY(0)   scale(0.8); opacity: 0; }
+      40%  { opacity: 1; }
+      100% { transform: translateX(-50%) translateY(-18px) scale(1.2); opacity: 0; }
+    }
+
+    /* Pig status label */
+    .pig-label {
+      position: absolute;
+      bottom: -2px; left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      font-size: 9px;
+      font-weight: 800;
+      background: rgba(255,255,255,0.9);
+      border-radius: 20px;
+      padding: 1px 6px;
+      z-index: 10;
+      transition: color 0.5s;
+    }
+
+    /* ── ANIMATIONS BY STATE ── */
+    @keyframes pig-bounce-k {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-5px); }
+    }
+    @keyframes pig-nervous-k {
+      0%,100% { transform: rotate(0deg); }
+      25%     { transform: rotate(-4deg); }
+      75%     { transform: rotate(4deg); }
+    }
+    @keyframes pig-shake-k {
+      0%,100% { transform: translateX(0); }
+      25%     { transform: translateX(-3px) rotate(-3deg); }
+      75%     { transform: translateX(3px)  rotate(3deg); }
+    }
+    @keyframes pig-hot-k {
+      0%,100% { transform: translateX(0) scale(1); }
+      20%     { transform: translateX(-4px) rotate(-5deg) scale(1.02); }
+      40%     { transform: translateX(4px)  rotate(5deg)  scale(1.02); }
+      60%     { transform: translateX(-4px) rotate(-5deg) scale(1.02); }
+      80%     { transform: translateX(4px)  rotate(5deg)  scale(1.02); }
+    }
+    @keyframes pig-angry-k {
+      0%,100% { transform: translateX(0) scale(1); }
+      15%     { transform: translateX(-5px) rotate(-6deg) scale(1.04); }
+      30%     { transform: translateX(5px)  rotate(6deg)  scale(1.04); }
+      45%     { transform: translateX(-5px) rotate(-6deg) scale(1.04); }
+      60%     { transform: translateX(5px)  rotate(6deg)  scale(1.04); }
+      75%     { transform: translateX(-5px) rotate(-6deg) scale(1.04); }
+      90%     { transform: translateX(5px)  rotate(6deg)  scale(1.04); }
+    }
+
+    .pig-anim-bounce  { animation: pig-bounce-k  2s   ease-in-out infinite; }
+    .pig-anim-nervous { animation: pig-nervous-k  1.4s ease-in-out infinite; }
+    .pig-anim-shake   { animation: pig-shake-k    0.7s ease-in-out infinite; }
+    .pig-anim-hot     { animation: pig-hot-k      0.45s ease-in-out infinite; }
+    .pig-anim-angry   { animation: pig-angry-k    0.35s ease-in-out infinite; }
   </style>
 </head>
 <body class="bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
@@ -216,15 +436,52 @@
         <div class="flex items-center justify-between mb-4">
           <div>
             <p class="text-xs text-gray-400 font-semibold">이번 달 남은 용돈</p>
-            <p class="text-3xl font-black text-gray-800 mt-0.5" id="remainAmount">0원</p>
+            <p class="text-2xl font-black text-gray-800 mt-0.5" id="remainAmount">0원</p>
             <p class="text-xs text-gray-400 mt-1">예산: <span class="text-pink-500 font-bold" id="budgetDisplay">미설정</span></p>
           </div>
-          <!-- Donut Chart -->
-          <div class="donut-wrap">
-            <canvas id="donutChart" width="180" height="180"></canvas>
-            <div class="donut-center">
-              <p class="text-xs text-gray-400 font-semibold">사용률</p>
-              <p class="text-xl font-black text-pink-500" id="usagePercent">0%</p>
+          <!-- Pig + Donut right side -->
+          <div class="flex items-end gap-2">
+            <!-- 🐷 Pig Character -->
+            <div id="pigChar" class="pig-wrap pig-anim-bounce">
+              <div class="pig-ear pig-ear-l" id="pigEarL" style="background:#f9a8d4"></div>
+              <div class="pig-ear pig-ear-r" id="pigEarR" style="background:#f9a8d4"></div>
+              <div class="pig-body" id="pigBody" style="background:#fce7f3; box-shadow:0 6px 20px rgba(244,114,182,0.3)">
+                <!-- Cheeks -->
+                <div class="pig-cheek pig-cheek-l" id="pigCheekL"></div>
+                <div class="pig-cheek pig-cheek-r" id="pigCheekR"></div>
+                <!-- Angry brows -->
+                <div class="pig-brows" id="pigBrows">
+                  <div class="pig-brow-l"></div>
+                  <div class="pig-brow-r"></div>
+                </div>
+                <!-- Eyes -->
+                <div class="pig-eyes">
+                  <div class="pig-eye" id="pigEyeL"></div>
+                  <div class="pig-eye" id="pigEyeR"></div>
+                </div>
+                <!-- Snout -->
+                <div class="pig-snout">
+                  <div class="pig-nostril"></div>
+                  <div class="pig-nostril"></div>
+                </div>
+                <!-- Mouth -->
+                <div class="pig-mouth" id="pigMouth"></div>
+              </div>
+              <!-- Sweat drops -->
+              <div class="pig-sweat" id="pigSweat1">💧</div>
+              <div class="pig-sweat pig-sweat-2" id="pigSweat2">💧</div>
+              <!-- Steam -->
+              <div class="pig-steam" id="pigSteam">💢</div>
+              <!-- Label -->
+              <div class="pig-label" id="pigLabel" style="color:#be185d">행복해요 😊</div>
+            </div>
+            <!-- Donut Chart -->
+            <div class="donut-wrap">
+              <canvas id="donutChart" width="130" height="130"></canvas>
+              <div class="donut-center">
+                <p class="text-[10px] text-gray-400 font-semibold">사용률</p>
+                <p class="text-base font-black text-pink-500" id="usagePercent">0%</p>
+              </div>
             </div>
           </div>
         </div>

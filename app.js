@@ -24,6 +24,65 @@ const LEVELS = [
 const COOLDOWN_DAYS = 3;
 const MILEAGE_RATE  = 100; // 절약 금액 / 100 = 포인트
 
+// 폭탄 캐릭터 5단계 상태
+const PIG_STATES = [
+  {
+    maxPct: 50,
+    bodyColor: '#fce7f3', earColor: '#f9a8d4',
+    shadow: 'rgba(244,114,182,0.30)',
+    cheekOpacity: 0,
+    mouthStyle: { borderRadius: '0 0 12px 12px', borderTop: 'none', borderBottom: '3px solid #1a1a1a', borderColor: '#1a1a1a' },
+    eyeColor: '#1a1a1a', showBrows: false,
+    sweat1: 0, sweat2: 0, steam: 0,
+    animClass: 'pig-anim-bounce',
+    label: '행복해요 😊', labelColor: '#be185d',
+  },
+  {
+    maxPct: 70,
+    bodyColor: '#ffe0ec', earColor: '#f472b6',
+    shadow: 'rgba(244,114,182,0.38)',
+    cheekOpacity: 0.25,
+    mouthStyle: { borderRadius: '0 0 6px 6px', borderTop: 'none', borderBottom: '3px solid #1a1a1a', borderColor: '#1a1a1a' },
+    eyeColor: '#1a1a1a', showBrows: false,
+    sweat1: 1, sweat2: 0, steam: 0,
+    animClass: 'pig-anim-nervous',
+    label: '조금 주의하세요 😅', labelColor: '#f97316',
+  },
+  {
+    maxPct: 85,
+    bodyColor: '#fec4a0', earColor: '#fb923c',
+    shadow: 'rgba(249,115,22,0.45)',
+    cheekOpacity: 0.6,
+    mouthStyle: { borderRadius: '6px 6px 0 0', borderTop: '3px solid #1a1a1a', borderBottom: 'none', borderColor: '#1a1a1a', marginTop: '2px' },
+    eyeColor: '#7c2d12', showBrows: false,
+    sweat1: 1, sweat2: 1, steam: 0,
+    animClass: 'pig-anim-shake',
+    label: '지갑 닫으세요... 🥵', labelColor: '#ea580c',
+  },
+  {
+    maxPct: 100,
+    bodyColor: '#fca5a5', earColor: '#ef4444',
+    shadow: 'rgba(239,68,68,0.55)',
+    cheekOpacity: 0.85,
+    mouthStyle: { borderRadius: '6px 6px 0 0', borderTop: '3px solid #991b1b', borderBottom: 'none', borderColor: '#991b1b', marginTop: '2px' },
+    eyeColor: '#991b1b', showBrows: false,
+    sweat1: 1, sweat2: 1, steam: 0,
+    animClass: 'pig-anim-hot',
+    label: '한계에요!! 🔥', labelColor: '#dc2626',
+  },
+  {
+    maxPct: Infinity,
+    bodyColor: '#ef4444', earColor: '#b91c1c',
+    shadow: 'rgba(185,28,28,0.70)',
+    cheekOpacity: 1,
+    mouthStyle: { borderRadius: '8px 8px 0 0', borderTop: '3px solid #7f1d1d', borderBottom: 'none', borderColor: '#7f1d1d', marginTop: '2px', width: '22px' },
+    eyeColor: '#7f1d1d', showBrows: true,
+    sweat1: 1, sweat2: 1, steam: 1,
+    animClass: 'pig-anim-angry',
+    label: '지갑을 닫아라!!!! 😡', labelColor: '#b91c1c',
+  },
+];
+
 const GIFT_CARDS = [
   { id: 'gc1', name: '스타벅스 아메리카노', emoji: '☕', brand: 'Starbucks', price: 150, value: '4,500원권', color: '#00704A', bg: '#d4edda' },
   { id: 'gc2', name: '버블티 쿠폰',        emoji: '🧋', brand: '공차',     price: 120, value: '5,000원권', color: '#8B4513', bg: '#fdf0e0' },
@@ -190,6 +249,9 @@ function renderDashboard() {
   // Donut chart
   renderDonut(spent, budget);
 
+  // Pig character
+  renderPigCharacter(pct);
+
   // Comparison
   renderCompare();
 
@@ -336,6 +398,74 @@ function renderMileagePreview() {
   document.getElementById('charPreview').textContent   = info.char;
   document.getElementById('mileagePreview').textContent = pts.toLocaleString() + ' P';
   document.getElementById('charLevel').textContent     = `Lv.${info.idx + 1} ${info.label}`;
+}
+
+// ─── Pig Character ───
+function renderPigCharacter(pct) {
+  const pigChar  = document.getElementById('pigChar');
+  const pigBody  = document.getElementById('pigBody');
+  const pigEarL  = document.getElementById('pigEarL');
+  const pigEarR  = document.getElementById('pigEarR');
+  const pigCheekL = document.getElementById('pigCheekL');
+  const pigCheekR = document.getElementById('pigCheekR');
+  const pigBrows  = document.getElementById('pigBrows');
+  const pigEyeL   = document.getElementById('pigEyeL');
+  const pigEyeR   = document.getElementById('pigEyeR');
+  const pigMouth  = document.getElementById('pigMouth');
+  const pigSweat1 = document.getElementById('pigSweat1');
+  const pigSweat2 = document.getElementById('pigSweat2');
+  const pigSteam  = document.getElementById('pigSteam');
+  const pigLabel  = document.getElementById('pigLabel');
+  if (!pigChar) return;
+
+  // Pick state
+  const s = PIG_STATES.find(st => pct < st.maxPct) || PIG_STATES[PIG_STATES.length - 1];
+
+  // Body + ears color
+  pigBody.style.backgroundColor = s.bodyColor;
+  pigBody.style.boxShadow = `0 6px 24px ${s.shadow}, inset 0 -3px 8px rgba(0,0,0,0.06)`;
+  pigEarL.style.backgroundColor = s.earColor;
+  pigEarR.style.backgroundColor = s.earColor;
+
+  // Cheek blush
+  pigCheekL.style.opacity = s.cheekOpacity;
+  pigCheekR.style.opacity = s.cheekOpacity;
+
+  // Angry brows
+  pigBrows.style.display = s.showBrows ? 'flex' : 'none';
+
+  // Eyes color
+  pigEyeL.style.backgroundColor = s.eyeColor;
+  pigEyeR.style.backgroundColor = s.eyeColor;
+  // Angry: slightly squinted
+  const eyeScale = s.showBrows ? 'scaleY(0.7)' : 'none';
+  pigEyeL.style.transform = eyeScale;
+  pigEyeR.style.transform = eyeScale;
+
+  // Mouth shape
+  Object.assign(pigMouth.style, {
+    borderRadius:   '',
+    borderTop:      '',
+    borderBottom:   '',
+    borderColor:    '',
+    marginTop:      '',
+    width:          '',
+    ...s.mouthStyle
+  });
+
+  // Sweat / steam
+  pigSweat1.style.opacity = s.sweat1;
+  pigSweat2.style.opacity = s.sweat2;
+  pigSteam.style.opacity  = s.steam;
+
+  // Animation class
+  pigChar.className = `pig-wrap ${s.animClass}`;
+
+  // Label
+  if (pigLabel) {
+    pigLabel.textContent = s.label;
+    pigLabel.style.color = s.labelColor;
+  }
 }
 
 // ─── Transaction Log ───

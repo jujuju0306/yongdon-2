@@ -453,10 +453,10 @@ function renderPigCharacter(pct) {
     ...s.mouthStyle
   });
 
-  // Sweat / steam
-  pigSweat1.style.opacity = s.sweat1;
-  pigSweat2.style.opacity = s.sweat2;
-  pigSteam.style.opacity  = s.steam;
+  // Sweat / steam — toggle .visible class (animation only runs when visible)
+  pigSweat1.classList.toggle('visible', s.sweat1 === 1);
+  pigSweat2.classList.toggle('visible', s.sweat2 === 1);
+  pigSteam.classList.toggle('visible',  s.steam  === 1);
 
   // Animation class
   pigChar.className = `pig-wrap ${s.animClass}`;
